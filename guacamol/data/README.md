@@ -22,11 +22,11 @@ This script will use the molecules from `holdout_set_gcm_v1.smiles` as a
 holdout set, and will exclude molecules very similar to these.
 
 ### Docker
-To be sure that you have the right dependencies you can build a Docker image:
+To be sure that you have the right dependencies you can build a Docker image, run from the top-level directory:
 ```
 docker build -t guacamol-deps dockers/
 ```
 Then you can run:
 ```
-docker run --rm -it  -v `pwd`:/guacamol -w /guacamol guacamol-deps python get_data.py -o guacamol/data --chembl
+docker run --rm -it  -v `pwd`:/guacamol -w /guacamol guacamol-deps python -m guacamol.data.get_data -o guacamol/data --chembl
 ```
