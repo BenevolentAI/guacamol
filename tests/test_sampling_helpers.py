@@ -1,5 +1,5 @@
-from guacamol.tests.mock_generator import MockGenerator
 from guacamol.utils.sampling_helpers import sample_valid_molecules, sample_unique_molecules
+from .mock_generator import MockGenerator
 
 
 def test_sample_valid_molecules_for_valid_only():

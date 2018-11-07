@@ -1,5 +1,5 @@
 from guacamol.distribution_learning_benchmark import ValidityBenchmark, UniquenessBenchmark, NoveltyBenchmark
-from guacamol.tests.mock_generator import MockGenerator
+from .mock_generator import MockGenerator
 
 
 def test_validity_does_not_penalize_duplicates():
