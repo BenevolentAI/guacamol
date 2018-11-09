@@ -24,15 +24,17 @@ class FrechetBenchmark(DistributionLearningBenchmark):
     """
 
     def __init__(self, training_set: List[str],
-                 chemnet_model_filename='ChemNet_v0.13_pretrained.h5') -> None:
+                 chemnet_model_filename='ChemNet_v0.13_pretrained.h5',
+                 sample_size=10000) -> None:
         """
         Args:
             training_set: molecules from the training set
             chemnet_model_filename: name of the file for trained ChemNet model.
                 Must be present in the 'fcd' package, since it will be loaded directly from there.
+            sample_size: how many molecules to generate the distribution statistics from (both reference data and model)
         """
         self.chemnet_model_filename = chemnet_model_filename
-        self.sample_size = 10000
+        self.sample_size = sample_size
         super().__init__(name='Fréchet ChemNet Distance benchmark', number_samples=self.sample_size)
 
         self.reference_molecules = self._get_training_subset(training_set)

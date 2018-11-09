@@ -70,7 +70,7 @@ def cobimetinib() -> GoalDirectedBenchmark:
 
     t_cns = MultiPropertyScoringFunction([os_tf, os_ap, rot_b, rings, CNS_MPO_ScoringFunction()])
 
-    specification = uniform_specification(1, 10)
+    specification = uniform_specification(1, 10, 100)
 
     return GoalDirectedBenchmark(name='Cobimetinib benchmark',
                                  objective=t_cns,
@@ -86,7 +86,7 @@ def similarity_cns_mpo(smiles, molecule_name) -> GoalDirectedBenchmark:
 
     t_cns = MultiPropertyScoringFunction([os_tf, os_ap, anti_fp, CNS_MPO_ScoringFunction()])
 
-    specification = uniform_specification(1, 10)
+    specification = uniform_specification(1, 10, 100)
 
     return GoalDirectedBenchmark(name=benchmark_name,
                                  objective=t_cns,
@@ -100,7 +100,7 @@ def similarity(smiles: str, name: str) -> GoalDirectedBenchmark:
     modifier = ClippedScoreModifier(upper_x=threshold)
     scoring_function = TanimotoScoringFunction(target=smiles, fp_type='ECFP4', score_modifier=modifier)
 
-    specification = uniform_specification(1, 10, 50)
+    specification = uniform_specification(1, 10, 100)
 
     return GoalDirectedBenchmark(name=benchmark_name,
                                  objective=scoring_function,
@@ -112,7 +112,7 @@ def logP_benchmark(target: float) -> GoalDirectedBenchmark:
     objective = RdkitScoringFunction(descriptor=logP,
                                      score_modifier=GaussianModifier(mu=target, sigma=1))
 
-    specification = uniform_specification(10, 50, 100)
+    specification = uniform_specification(1, 10, 100)
 
     return GoalDirectedBenchmark(name=benchmark_name,
                                  objective=objective,
@@ -120,13 +120,13 @@ def logP_benchmark(target: float) -> GoalDirectedBenchmark:
 
 
 def cns_mpo() -> GoalDirectedBenchmark:
-    specification = uniform_specification(5, 15)
+    specification = uniform_specification(1, 10, 100)
     return GoalDirectedBenchmark(name='CNS MPO benchmark', objective=CNS_MPO_ScoringFunction(),
                                  contribution_specification=specification)
 
 
 def qed_benchmark() -> GoalDirectedBenchmark:
-    specification = uniform_specification(50)
+    specification = uniform_specification(1, 10, 100)
     return GoalDirectedBenchmark(name='Synthetic accessibility benchmark',
                                  objective=RdkitScoringFunction(descriptor=qed),
                                  contribution_specification=specification)
@@ -137,7 +137,7 @@ def median_molecule() -> GoalDirectedBenchmark:
     t_menthol = TanimotoScoringFunction('CC(C)C1CCC(C)CC1O', fp_type='ECFP4')
     median = MultiPropertyScoringFunction([t_menthol, t_camphor])
 
-    specification = uniform_specification(1, 5, 20)
+    specification = uniform_specification(1, 10, 100)
 
     return GoalDirectedBenchmark(name='Median molecules benchmark',
                                  objective=median,
