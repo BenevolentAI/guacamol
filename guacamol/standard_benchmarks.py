@@ -127,7 +127,7 @@ def cns_mpo() -> GoalDirectedBenchmark:
 
 def qed_benchmark() -> GoalDirectedBenchmark:
     specification = uniform_specification(1, 10, 100)
-    return GoalDirectedBenchmark(name='Synthetic accessibility benchmark',
+    return GoalDirectedBenchmark(name='Chemical beauty benchmark',
                                  objective=RdkitScoringFunction(descriptor=qed),
                                  contribution_specification=specification)
 

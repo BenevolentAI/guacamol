@@ -3,7 +3,7 @@
 joblib==0.12.5
 numpy==1.15.2
 tqdm==4.26.0
-git+https://github.com/avaucher/FCD.git@9bd6e72c33d0a0373a25abe68ade50d8d1c92838#egg=fcd
+git+https://github.com/bioinf-jku/FCD.git@master#egg=fcd
 
 # rdkit is also required and is best installed with conda:
 #     conda install rdkit -c rdkit

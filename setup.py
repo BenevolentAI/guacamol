@@ -29,7 +29,7 @@ setup(name='guacamol',
           'tqdm==4.26.0',
           'fcd==1.0'
       ],
-      dependency_links=['https://github.com/avaucher/FCD/tarball/master#egg=fcd-1.0'],
+      dependency_links=['https://github.com/bioinf-jku/FCD/tarball/master#egg=fcd-1.0'],
       python_requires='>=3.6',
       extras_require={
           'rdkit': ['rdkit>=2018.09.1.0'],
