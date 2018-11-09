@@ -69,8 +69,8 @@ def distribution_learning_suite_v1(chembl_file_path: str) -> List[DistributionLe
         List of benchmarks, version 1
     """
     return [
-        ValidityBenchmark(number_samples=1000),
-        UniquenessBenchmark(number_samples=1000),
-        novelty_benchmark(training_set_file=chembl_file_path, number_samples=1000),
+        ValidityBenchmark(number_samples=10000),
+        UniquenessBenchmark(number_samples=10000),
+        novelty_benchmark(training_set_file=chembl_file_path, number_samples=10000),
         frechet_benchmark(training_set_file=chembl_file_path)
     ]
