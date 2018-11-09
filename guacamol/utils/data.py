@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 from urllib.request import urlretrieve
 
 from tqdm import tqdm
@@ -68,3 +69,8 @@ class ProgressBarUpTo(ProgressBar):
         if tsize is not None:
             self.total = tsize
         self.update(b * bsize - self.n)  # will also set self.n = b * bsize
+
+
+def get_time_string():
+    lt = time.localtime()
+    return "%04d%02d%02d-%02d%02d" % (lt.tm_year, lt.tm_mon, lt.tm_mday, lt.tm_hour, lt.tm_min)

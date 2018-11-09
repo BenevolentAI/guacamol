@@ -1,11 +1,14 @@
 import datetime
 import json
 import logging
-from typing import List
+from collections import OrderedDict
+from typing import List, Any, Dict
 
-from guacamol.goal_directed_benchmark import GoalDirectedBenchmark
+import guacamol
+from guacamol.goal_directed_benchmark import GoalDirectedBenchmark, GoalDirectedBenchmarkResult
 from guacamol.goal_directed_generator import GoalDirectedGenerator
 from guacamol.benchmark_suites import goal_directed_benchmark_suite
+from guacamol.utils.data import get_time_string
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
@@ -25,13 +28,24 @@ def assess_goal_directed_generation(goal_directed_molecule_generator: GoalDirect
     logger.info(f'Benchmarking goal-directed molecule generation, version {benchmark_version}')
     benchmarks = goal_directed_benchmark_suite(version_name=benchmark_version)
 
-    _evaluate_distribution_learning_benchmarks(goal_directed_molecule_generator=goal_directed_molecule_generator,
-                                               benchmarks=benchmarks, json_output_file=json_output_file)
+    results = _evaluate_distribution_learning_benchmarks(
+        goal_directed_molecule_generator=goal_directed_molecule_generator,
+        benchmarks=benchmarks)
+
+    benchmark_results: Dict[str, Any] = OrderedDict()
+    benchmark_results['guacamol_version'] = guacamol.__version__
+    benchmark_results['benchmark_suite_version'] = benchmark_version
+    benchmark_results['timestamp'] = get_time_string()
+    benchmark_results['results'] = [vars(result) for result in results]
+
+    logger.info(f'Save results to file {json_output_file}')
+    with open(json_output_file, 'wt') as f:
+        f.write(json.dumps(benchmark_results, indent=4))
 
 
 def _evaluate_distribution_learning_benchmarks(goal_directed_molecule_generator: GoalDirectedGenerator,
-                                               benchmarks: List[GoalDirectedBenchmark],
-                                               json_output_file: str) -> None:
+                                               benchmarks: List[GoalDirectedBenchmark]
+                                               ) -> List[GoalDirectedBenchmarkResult]:
     """
     Evaluate a model with the given benchmarks.
     Should not be called directly except for testing purposes.
@@ -56,8 +70,4 @@ def _evaluate_distribution_learning_benchmarks(goal_directed_molecule_generator:
 
     logger.info('Finished execution of the benchmarks')
 
-    all_results_dict = [vars(result) for result in results]
-
-    logger.info(f'Save results to file {json_output_file}')
-    with open(json_output_file, 'wt') as f:
-        f.write(json.dumps(all_results_dict, indent=4, sort_keys=True))
+    return results

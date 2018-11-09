@@ -35,7 +35,7 @@ class FrechetBenchmark(DistributionLearningBenchmark):
         """
         self.chemnet_model_filename = chemnet_model_filename
         self.sample_size = sample_size
-        super().__init__(name='Fréchet ChemNet Distance benchmark', number_samples=self.sample_size)
+        super().__init__(name='Frechet ChemNet Distance benchmark', number_samples=self.sample_size)
 
         self.reference_molecules = self._get_training_subset(training_set)
 

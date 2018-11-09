@@ -1,11 +1,14 @@
 import datetime
 import json
 import logging
-from typing import List
+from collections import OrderedDict
+from typing import List, Dict, Any
 
-from guacamol.distribution_learning_benchmark import DistributionLearningBenchmark
+import guacamol
+from guacamol.distribution_learning_benchmark import DistributionLearningBenchmark, DistributionLearningBenchmarkResult
 from guacamol.distribution_matching_generator import DistributionMatchingGenerator
 from guacamol.benchmark_suites import distribution_learning_benchmark_suite
+from guacamol.utils.data import get_time_string
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
@@ -28,12 +31,22 @@ def assess_distribution_learning(model: DistributionMatchingGenerator,
     benchmarks = distribution_learning_benchmark_suite(chembl_file_path=chembl_training_file,
                                                        version_name=benchmark_version)
 
-    _evaluate_distribution_learning_benchmarks(model=model, benchmarks=benchmarks, json_output_file=json_output_file)
+    results = _evaluate_distribution_learning_benchmarks(model=model, benchmarks=benchmarks)
+
+    benchmark_results: Dict[str, Any] = OrderedDict()
+    benchmark_results['guacamol_version'] = guacamol.__version__
+    benchmark_results['benchmark_suite_version'] = benchmark_version
+    benchmark_results['timestamp'] = get_time_string()
+    benchmark_results['results'] = [vars(result) for result in results]
+
+    logger.info(f'Save results to file {json_output_file}')
+    with open(json_output_file, 'wt') as f:
+        f.write(json.dumps(benchmark_results, indent=4))
 
 
 def _evaluate_distribution_learning_benchmarks(model: DistributionMatchingGenerator,
-                                               benchmarks: List[DistributionLearningBenchmark],
-                                               json_output_file: str) -> None:
+                                               benchmarks: List[DistributionLearningBenchmark]
+                                               ) -> List[DistributionLearningBenchmarkResult]:
     """
     Evaluate a model with the given benchmarks.
     Should not be called directly except for testing purposes.
@@ -58,8 +71,4 @@ def _evaluate_distribution_learning_benchmarks(model: DistributionMatchingGenera
 
     logger.info('Finished execution of the benchmarks')
 
-    all_results_dict = [vars(result) for result in results]
-
-    logger.info(f'Save results to file {json_output_file}')
-    with open(json_output_file, 'wt') as f:
-        f.write(json.dumps(all_results_dict, indent=4, sort_keys=True))
+    return results

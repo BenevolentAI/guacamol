@@ -4,7 +4,6 @@ import hashlib
 import os.path
 import pkgutil
 import platform
-import time
 from typing import List, Iterable
 
 import numpy as np
@@ -12,7 +11,7 @@ from joblib import Parallel, delayed
 
 from guacamol.utils.chemistry import canonicalize_list, filter_and_canonicalize, \
     initialise_neutralisation_reactions, split_charged_mol, get_fingerprints_from_smileslist
-from guacamol.utils.data import download_if_not_present
+from guacamol.utils.data import download_if_not_present, get_time_string
 
 TRAIN_HASH = '05ad85d871958a05c02ab51a4fde8530'
 VALID_HASH = 'e53db4bff7dc4784123ae6df72e3b1f0'
@@ -35,11 +34,6 @@ def get_argparser():
     parser.add_argument('--chembl', action='store_true',
                         help='Specify to download and process molecules from chembl')
     return parser
-
-
-def get_time_string():
-    lt = time.localtime()
-    return "%04d%02d%02d-%02d%02d" % (lt.tm_year, lt.tm_mon, lt.tm_mday, lt.tm_hour, lt.tm_min)
 
 
 def extract_chembl(line) -> str:
