@@ -3,7 +3,7 @@ from typing import Callable, Dict
 from rdkit import Chem
 from rdkit.DataStructs.cDataStructs import TanimotoSimilarity
 
-from guacamol.utils.descriptors import mol_weight, logP, num_H_donors, tpsa, num_atoms, num_atoms_of_type_fn
+from guacamol.utils.descriptors import mol_weight, logP, num_H_donors, tpsa, num_atoms, AtomCounter
 from guacamol.utils.fingerprints import get_fingerprint
 from guacamol.score_modifier import ScoreModifier, MinGaussianModifier, MaxGaussianModifier, GaussianModifier
 from guacamol.scoring_function import ScoringFunctionBasedOnRdkitMol, MoleculewiseScoringFunction
@@ -107,7 +107,7 @@ class IsomerScoringFunction(MoleculewiseScoringFunction):
         total_number_atoms = sum(num_target_atoms for num_target_atoms in number_atoms_of_type.values())
 
         # scoring functions for each element
-        self.functions = [RdkitScoringFunction(descriptor=num_atoms_of_type_fn(element),
+        self.functions = [RdkitScoringFunction(descriptor=AtomCounter(element),
                                                score_modifier=GaussianModifier(mu=n_atoms, sigma=1.0))
                           for element, n_atoms in number_atoms_of_type.items()]
 

@@ -1,5 +1,3 @@
-from typing import Callable
-
 from rdkit import Chem
 from rdkit.Chem import Descriptors, Mol, rdMolDescriptors
 
@@ -48,28 +46,27 @@ def num_atoms(mol: Mol) -> int:
     return mol.GetNumAtoms()
 
 
-def num_atoms_of_type(mol: Mol, element: str) -> int:
-    """
-    Count the number of atoms of a given type.
+class AtomCounter:
 
-    Args:
-        mol: molecule
-        element: element type to look for, such as 'H' or 'C'
+    def __init__(self, element: str) -> None:
+        """
+        Args:
+            element: element to count within a molecule
+        """
+        self.element = element
 
-    Returns:
-        The number of atoms of the given type.
-    """
-    # if the molecule contains H atoms, they may be implicit, so add them
-    if element == 'H':
-        mol = Chem.AddHs(mol)
+    def __call__(self, mol: Mol) -> int:
+        """
+        Count the number of atoms of a given type.
 
-    return sum(1 for a in mol.GetAtoms() if a.GetSymbol() == element)
+        Args:
+            mol: molecule
 
+        Returns:
+            The number of atoms of the given type.
+        """
+        # if the molecule contains H atoms, they may be implicit, so add them
+        if self.element == 'H':
+            mol = Chem.AddHs(mol)
 
-def num_atoms_of_type_fn(element: str) -> Callable[[Mol], int]:
-    """
-    Return the function counting the number of atoms of a given element in molecules (closure).
-    """
-    def counter(mol: Mol) -> int:
-        return num_atoms_of_type(mol, element)
-    return counter
+        return sum(1 for a in mol.GetAtoms() if a.GetSymbol() == self.element)
