@@ -1,6 +1,6 @@
 import logging
 import time
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Optional
 
 import numpy as np
 
@@ -43,7 +43,8 @@ class GoalDirectedBenchmark:
     """
 
     def __init__(self, name: str, objective: ScoringFunction,
-                 contribution_specification: ScoreContributionSpecification) -> None:
+                 contribution_specification: ScoreContributionSpecification,
+                 starting_population: Optional[List[str]] = None) -> None:
         """
         Args:
             name: Benchmark name
@@ -54,6 +55,7 @@ class GoalDirectedBenchmark:
         self.objective = objective
         self.wrapped_objective = ScoringFunctionWrapper(scoring_function=objective)
         self.contribution_specification = contribution_specification
+        self.starting_population = starting_population
 
     def assess_model(self, model: GoalDirectedGenerator) -> GoalDirectedBenchmarkResult:
         """
@@ -66,7 +68,9 @@ class GoalDirectedBenchmark:
         number_molecules_to_generate = max(self.contribution_specification.top_counts)
         start_time = time.time()
         molecules = model.generate_optimized_molecules(scoring_function=self.wrapped_objective,
-                                                       number_molecules=number_molecules_to_generate)
+                                                       number_molecules=number_molecules_to_generate,
+                                                       starting_population=self.starting_population
+                                                       )
         end_time = time.time()
 
         canonicalized_molecules = canonicalize_list(molecules, include_stereocenters=False)
