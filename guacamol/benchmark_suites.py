@@ -4,7 +4,8 @@ from guacamol.distribution_learning_benchmark import DistributionLearningBenchma
     UniquenessBenchmark
 from guacamol.goal_directed_benchmark import GoalDirectedBenchmark
 from guacamol.standard_benchmarks import cobimetinib, similarity_cns_mpo, similarity, logP_benchmark, cns_mpo, \
-    qed_benchmark, median_molecule, novelty_benchmark, isomers_c11h24, isomers_c7h8n2o2, frechet_benchmark
+    qed_benchmark, median_molecule, novelty_benchmark, isomers_c11h24, isomers_c7h8n2o2, isomers_c9h10n2o2pf2cl, \
+    frechet_benchmark, tpsa_benchmark
 
 
 def goal_directed_benchmark_suite(version_name: str) -> List[GoalDirectedBenchmark]:
@@ -36,6 +37,7 @@ def goal_directed_suite_v1() -> List[GoalDirectedBenchmark]:
     return [
         isomers_c11h24(),
         isomers_c7h8n2o2(),
+        isomers_c9h10n2o2pf2cl(),
         cobimetinib(),
         similarity_cns_mpo('COc1cc(N(C)CCN(C)C)c(NC(=O)C=C)cc1Nc2nccc(n2)c3cn(C)c4ccccc34', 'Osimertinib'),
         similarity_cns_mpo('CCN(CC)CCNC(=O)c1c(C)[nH]c(C=C2C(=O)Nc3ccc(F)cc23)c1C', 'Sunitinib'),
@@ -50,8 +52,8 @@ def goal_directed_suite_v1() -> List[GoalDirectedBenchmark]:
         similarity(smiles='CC(C)(C(=O)O)c1ccc(cc1)C(O)CCCN2CCC(CC2)C(O)(c3ccccc3)c4ccccc4', name='Fexofenadine'),
         similarity(smiles='COc1ccc2[C@H]3CC[C@@]4(C)[C@@H](CC[C@@]4(O)C#C)[C@@H]3CCc2c1', name='Mestranol'),
         logP_benchmark(target=-1.0),
-        logP_benchmark(target=1.0),
-        logP_benchmark(target=3.0),
+        logP_benchmark(target=8.0),
+        tpsa_benchmark(target=150.0),
         cns_mpo(),
         qed_benchmark(),
         median_molecule()

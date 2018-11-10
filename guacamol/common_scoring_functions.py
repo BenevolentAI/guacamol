@@ -1,12 +1,12 @@
-from typing import Callable
+from typing import Callable, Dict
 
 from rdkit import Chem
 from rdkit.DataStructs.cDataStructs import TanimotoSimilarity
 
-from guacamol.utils.descriptors import mol_weight, logP, num_H_donors, tpsa
+from guacamol.utils.descriptors import mol_weight, logP, num_H_donors, tpsa, num_atoms, num_atoms_of_type_fn
 from guacamol.utils.fingerprints import get_fingerprint
-from guacamol.score_modifier import ScoreModifier, MinGaussianModifier, MaxGaussianModifier
-from guacamol.scoring_function import ScoringFunctionBasedOnRdkitMol
+from guacamol.score_modifier import ScoreModifier, MinGaussianModifier, MaxGaussianModifier, GaussianModifier
+from guacamol.scoring_function import ScoringFunctionBasedOnRdkitMol, MoleculewiseScoringFunction
 from guacamol.utils.chemistry import smiles_to_rdkit_mol
 
 
@@ -82,3 +82,39 @@ class CNS_MPO_ScoringFunction(ScoringFunctionBasedOnRdkitMol):
         o5 = self.molW_gauss(mw)
 
         return 0.2 * (o1 + o2 + o3 + o4 + o5)
+
+
+class IsomerScoringFunction(MoleculewiseScoringFunction):
+    """
+    Scoring function for closeness to a molecular formula.
+
+    The score penalizes deviations from the required number of atoms for each element type, and for the total
+    number of atoms.
+
+    F.i., if the target formula is C2H4, the scoring function is the average of three contributions:
+    - number of C atoms with a Gaussian modifier with mu=2, sigma=1
+    - number of H atoms with a Gaussian modifier with mu=4, sigma=1
+    - total number of atoms with a Gaussian modifier with mu=6, sigma=2
+    """
+
+    def __init__(self, number_atoms_of_type: Dict[str, int]) -> None:
+        """
+        Args:
+            number_atoms_of_type: dictionary specifying how many atoms of each element type are required.
+        """
+        super().__init__()
+
+        total_number_atoms = sum(num_target_atoms for num_target_atoms in number_atoms_of_type.values())
+
+        # scoring functions for each element
+        self.functions = [RdkitScoringFunction(descriptor=num_atoms_of_type_fn(element),
+                                               score_modifier=GaussianModifier(mu=n_atoms, sigma=1.0))
+                          for element, n_atoms in number_atoms_of_type.items()]
+
+        # scoring functions for the total number of atoms
+        self.functions.append(RdkitScoringFunction(descriptor=num_atoms,
+                                                   score_modifier=GaussianModifier(mu=total_number_atoms, sigma=2.0)))
+
+    def raw_score(self, smiles: str) -> float:
+        # return the average of all scoring functions
+        return sum(f.score(smiles) for f in self.functions) / len(self.functions)
