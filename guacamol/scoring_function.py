@@ -1,6 +1,5 @@
 from abc import abstractmethod
 import logging
-from threading import Lock
 from typing import List, Optional
 
 import numpy as np
@@ -208,14 +207,10 @@ class MultiPropertyScoringFunction(BatchScoringFunction):
 class ScoringFunctionWrapper(ScoringFunction):
     """
     Wraps a scoring function to store the number of calls to it.
-
-    The counter is incremented in a thread-safe manner, in order
-    to allow for parallel execution of the scoring function.
     """
 
     def __init__(self, scoring_function: ScoringFunction) -> None:
         super().__init__()
-        self.lock = Lock()
         self.scoring_function = scoring_function
         self.evaluations = 0
 
@@ -228,5 +223,7 @@ class ScoringFunctionWrapper(ScoringFunction):
         return self.scoring_function.score_list(smiles_list)
 
     def _increment_evaluation_count(self, n: int):
-        with self.lock:
-            self.evaluations += n
+        # Ideally, this should be protected by a lock in order to allow for multithreading.
+        # However, adding a threading.Lock member variable makes the class non-pickle-able, which prevents any multithreading.
+        # Therefore, in the current implementation there cannot be a guarantee that self.evaluations will be calculated correctly.
+        self.evaluations += n
