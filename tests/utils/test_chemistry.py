@@ -1,4 +1,5 @@
-from guacamol.utils.chemistry import canonicalize, canonicalize_list, is_valid
+from guacamol.utils.chemistry import canonicalize, canonicalize_list, is_valid, \
+    calculate_internal_pairwise_similarities, calculate_pairwise_similarities
 
 
 def test_validity_empty_molecule():
@@ -52,3 +53,32 @@ def test_list_canonicalization_removes_none():
     expected = [canonicalize(smiles) for smiles in valid_molecules]
 
     assert canonicalized_molecules == expected
+
+
+def test_internal_sim():
+    molz = ['OCCCF', 'c1cc(F)ccc1', 'c1cnc(CO)cc1', 'FOOF']
+    sim = calculate_internal_pairwise_similarities(molz)
+
+    assert sim.shape[0] == 4
+    assert sim.shape[1] == 4
+    # check elements
+    for i in range(sim.shape[0]):
+        for j in range(sim.shape[1]):
+            assert sim[i, j] == sim[j, i]
+            if i != j:
+                assert sim[i, j] < 1.0
+            else:
+                assert sim[i, j] == 0
+
+
+def test_external_sim():
+    molz1 = ['OCCCF', 'c1cc(F)ccc1', 'c1cnc(CO)cc1', 'FOOF']
+    molz2 = ['c1cc(Cl)ccc1', '[Cr][Ac][K]', '[Ca](F)[Fe]']
+    sim = calculate_pairwise_similarities(molz1, molz2)
+
+    assert sim.shape[0] == 4
+    assert sim.shape[1] == 3
+    # check elements
+    for i in range(sim.shape[0]):
+        for j in range(sim.shape[1]):
+            assert sim[i, j] < 1.0

@@ -1,5 +1,7 @@
-from guacamol.distribution_learning_benchmark import ValidityBenchmark, UniquenessBenchmark, NoveltyBenchmark
+from guacamol.distribution_learning_benchmark import ValidityBenchmark, UniquenessBenchmark, NoveltyBenchmark, \
+    KLDivBenchmark
 from .mock_generator import MockGenerator
+import numpy as np
 
 
 def test_validity_does_not_penalize_duplicates():
@@ -66,3 +68,29 @@ def test_novelty_score_penalizes_invalid_molecules():
     benchmark = NoveltyBenchmark(number_samples=3, training_set=['CO', 'CC'])
 
     assert benchmark.assess_model(generator).score == 2.0 / 3.0
+
+
+def test_KLdiv_benchmark_same_dist():
+    generator = MockGenerator(['CCOCC', 'NNNNONNN', 'C=CC=C'])
+    benchmark = KLDivBenchmark(number_samples=3, training_set=['CCOCC', 'NNNNONNN', 'C=CC=C'])
+    result = benchmark.assess_model(generator)
+    print(result.metadata)
+    assert np.isclose(result.score, 1.0, )
+
+
+def test_KLdiv_benchmark_different_dist():
+    generator = MockGenerator(['CCOCC', 'NNNNONNN', 'C=CC=C'])
+    benchmark = KLDivBenchmark(number_samples=3, training_set=['FCCOCC', 'CC(CC)CCCCNONNN', 'C=CC=O'])
+    result = benchmark.assess_model(generator)
+    print(result.metadata)
+
+    assert result.metadata['number_samples'] == 3
+    assert result.metadata.get('kl_divs') is not None
+    assert result.metadata['kl_divs'].get('BertzCT') > 0
+    assert result.metadata['kl_divs'].get('MolLogP', None) > 0
+    assert result.metadata['kl_divs'].get('MolWt', None) > 0
+    assert result.metadata['kl_divs'].get('TPSA', None) > 0
+    assert result.metadata['kl_divs'].get('NumHAcceptors', None) > 0
+    assert result.metadata['kl_divs'].get('NumHDonors', None) > 0
+    assert result.metadata['kl_divs'].get('NumRotatableBonds', None) > 0
+    assert result.score < 1.0

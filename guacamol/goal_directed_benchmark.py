@@ -2,10 +2,12 @@ import logging
 import time
 from typing import Any, Dict, List, Tuple
 
+import numpy as np
+
 from guacamol.goal_directed_score_contributions import ScoreContributionSpecification, compute_global_score
 from guacamol.scoring_function import ScoringFunction, ScoringFunctionWrapper
 from guacamol.goal_directed_generator import GoalDirectedGenerator
-from guacamol.utils.chemistry import canonicalize_list, remove_duplicates
+from guacamol.utils.chemistry import canonicalize_list, remove_duplicates, calculate_internal_pairwise_similarities
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
@@ -82,6 +84,16 @@ class GoalDirectedBenchmark:
 
         scored_molecules = zip(unique_molecules, scores)
         sorted_scored_molecules = sorted(scored_molecules, key=lambda x: (x[1], x[0]), reverse=True)
+
+        internal_similarities = calculate_internal_pairwise_similarities(unique_molecules)
+
+        # accumulate internal_similarities in metadata
+        int_simi_histogram = np.histogram(internal_similarities, bins=10, range=(0, 1), density=True)
+
+        top_x_dict['internal_similarity_max'] = internal_similarities.max()
+        top_x_dict['internal_similarity_mean'] = internal_similarities.mean()
+        top_x_dict["internal_similarity_histogram_density"] = int_simi_histogram[0].tolist(),
+        top_x_dict["internal_similarity_histogram_bins"] = int_simi_histogram[1].tolist(),
 
         return GoalDirectedBenchmarkResult(benchmark_name=self.name,
                                            score=global_score,

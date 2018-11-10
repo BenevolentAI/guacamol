@@ -2,8 +2,10 @@ import logging
 import time
 from abc import abstractmethod
 from typing import Dict, Any, Iterable
+import numpy as np
 
-from guacamol.utils.chemistry import canonicalize_list, is_valid
+from guacamol.utils.chemistry import canonicalize_list, is_valid, calculate_pc_descriptors, continuous_kldiv, \
+    pc_descriptor_subset, discrete_kldiv, calculate_internal_pairwise_similarities, calculate_pairwise_similarities
 from guacamol.distribution_matching_generator import DistributionMatchingGenerator
 from guacamol.utils.sampling_helpers import sample_valid_molecules, sample_unique_molecules
 
@@ -151,5 +153,89 @@ class NoveltyBenchmark(DistributionLearningBenchmark):
 
         return DistributionLearningBenchmarkResult(benchmark_name=self.name,
                                                    score=novel_ratio,
+                                                   sampling_time=end_time - start_time,
+                                                   metadata=metadata)
+
+
+class KLDivBenchmark(DistributionLearningBenchmark):
+    """
+    Computes the KL divergence between a number of samples and the training set for physchem descriptors
+    """
+
+    def __init__(self, number_samples: int, training_set: Iterable[str]) -> None:
+        """
+        Args:
+            number_samples: number of samples to generate from the model
+            training_set: molecules from the training set
+        """
+        super().__init__(name='Novelty benchmark', number_samples=number_samples)
+        self.training_set_molecules = set(canonicalize_list(training_set, include_stereocenters=False))
+
+    def assess_model(self, model: DistributionMatchingGenerator) -> DistributionLearningBenchmarkResult:
+        """
+        Assess a distribution-matching generator model.
+
+        Args:
+            model: model to assess
+        """
+        start_time = time.time()
+        molecules = sample_unique_molecules(model=model, number_molecules=self.number_samples)
+        end_time = time.time()
+
+        if len(molecules) != self.number_samples:
+            logger.warning('The model could not generate enough unique molecules. The score will be penalized.')
+
+        # canonicalize_list in order to remove stereo information (also removes duplicates and invalid molecules, but there shouldn't be any)
+        unique_molecules = set(canonicalize_list(molecules, include_stereocenters=False))
+
+        # first we calculate the descriptors, which are np.arrays of size n_samples x n_descriptors
+        d_sampled = calculate_pc_descriptors(unique_molecules)
+        d_chembl = calculate_pc_descriptors(self.training_set_molecules)
+
+        kldivs = {}
+        kldiv_sum = 0
+
+        # now we calculate the kl divergence for the float valued descriptors ...
+        for i in range(4):
+            kldiv = continuous_kldiv(d_sampled[:, i], d_chembl[:, i])
+            kldivs[pc_descriptor_subset[i]] = kldiv
+            kldiv_sum += kldiv
+
+        # ... and for the int valued ones.
+        for i in range(4, 9):
+            kldiv = discrete_kldiv(d_sampled[:, i], d_chembl[:, i])
+            kldivs[pc_descriptor_subset[i]] = kldiv
+            kldiv_sum += kldiv
+
+        # pairwise similarity
+
+        chembl_sim = calculate_internal_pairwise_similarities(self.training_set_molecules)
+        chembl_sim = chembl_sim.max(axis=1)
+
+        sampled_sim = calculate_internal_pairwise_similarities(unique_molecules)
+        sampled_sim = sampled_sim.max(axis=1)
+
+        kldiv_int_int = continuous_kldiv(chembl_sim, sampled_sim)
+        kldivs['internal_similarity'] = kldiv_int_int
+        kldiv_sum += kldiv_int_int
+
+        # for some reason, this runs into problems when both sets are identical.
+        # cross_set_sim = calculate_pairwise_similarities(self.training_set_molecules, unique_molecules)
+        # cross_set_sim = cross_set_sim.max(axis=1)
+        #
+        # kldiv_ext = discrete_kldiv(chembl_sim, cross_set_sim)
+        # kldivs['external_similarity'] = kldiv_ext
+        # kldiv_sum += kldiv_ext
+
+        metadata = {
+            'number_samples': self.number_samples,
+            'kl_divs': kldivs
+        }
+
+        # get the average over the 7 descriptors, and squash it so the result stays in [0,1].
+        kldiv_sum = np.exp(-kldiv_sum / 8.)
+
+        return DistributionLearningBenchmarkResult(benchmark_name=self.name,
+                                                   score=kldiv_sum,
                                                    sampling_time=end_time - start_time,
                                                    metadata=metadata)

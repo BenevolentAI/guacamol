@@ -2,8 +2,12 @@ import logging
 from typing import Optional, List, Iterable
 
 import numpy as np
-from rdkit import Chem, RDLogger, DataStructs
+from rdkit import Chem
+from rdkit import RDLogger, DataStructs
 from rdkit.Chem import AllChem
+from rdkit.ML.Descriptors import MoleculeDescriptors
+from scipy import histogram
+from scipy.stats import entropy, gaussian_kde
 
 from guacamol.utils.data import remove_duplicates
 
@@ -205,7 +209,12 @@ def filter_and_canonicalize(smiles: str, holdout_set, holdout_fps, neutralizatio
     return []
 
 
-def get_internal_similarities(smiles_list: List[str]):
+def calculate_internal_pairwise_similarities(smiles_list: List[str]) -> np.array:
+    """
+    Computes the pairwise similarities of the provided list of smiles against itself.
+    :param smiles_list:
+    :return: symmetric matrix of pairwise similarities. Diagonal is set to zero.
+    """
     if len(smiles_list) > 4096:
         logger.warning(f'Calculating internal similarity on large set of '
                        f'SMILES strings ({len(smiles_list)}')
@@ -214,18 +223,23 @@ def get_internal_similarities(smiles_list: List[str]):
     fps = get_fingerprints(mols)
     nfps = len(fps)
 
-    similarities: List[float] = []
+    similarities = np.zeros((nfps, nfps))
 
     for i in range(1, nfps):
         sims = DataStructs.BulkTanimotoSimilarity(fps[i], fps[:i])
-        similarities.extend(sims)
-
-    similarities = np.array(similarities).flatten()
+        similarities[i, :i] = sims
+        similarities[:i, i] = sims
 
     return similarities
 
 
-def get_similarities_against(smiles_list1: List[str], smiles_list2: List[str]):
+def calculate_pairwise_similarities(smiles_list1: Iterable[str], smiles_list2: Iterable[str]) -> np.array:
+    """
+    Computes the pairwise ECFP4 tanimoto similarity of the two smiles iterables.
+    :param smiles_list1: Iterable[str]
+    :param smiles_list2: Iterable[str]
+    :return: pairwise similarity matrix asnp.array
+    """
     if len(smiles_list1) > 4096 or len(smiles_list2) > 4096:
         logger.warning(f'Calculating similarity between large sets of '
                        f'SMILES strings ({len(smiles_list1)} x {len(smiles_list2)})')
@@ -280,7 +294,7 @@ def get_mols(smiles_list: Iterable[str]) -> Iterable[Chem.Mol]:
             if mol is not None:
                 yield mol
         except Exception as e:
-            print(e)
+            logger.warning(e)
 
 
 def highest_tanimoto_precalc_fps(mol, fps):
@@ -301,3 +315,72 @@ def highest_tanimoto_precalc_fps(mol, fps):
     sims = np.array(DataStructs.BulkTanimotoSimilarity(fp1, fps))
 
     return sims.max()
+
+
+def continuous_kldiv(X_baseline: np.array, X_sampled: np.array) -> float:
+    """
+
+    :param X_baseline:
+    :param X_sampled:
+    :return:
+    """
+    kde1 = gaussian_kde(X_baseline)
+    kde2 = gaussian_kde(X_sampled)
+    x_eval = np.linspace(np.hstack([X_baseline, X_sampled]).min(), np.hstack([X_baseline, X_sampled]).max(), num=1000)
+    Q = kde1(x_eval)
+    P = kde2(x_eval)
+    return entropy(P, Q)
+
+
+def discrete_kldiv(X_baseline: np.array, X_sampled: np.array) -> float:
+    """
+
+    :param X_baseline:
+    :param X_sampled:
+    :return:
+    """
+    Q, bins = histogram(X_baseline, bins=10, density=True)
+    Q = Q + 1.e-10
+    P, _ = histogram(X_sampled, bins=bins, density=True)
+
+    return entropy(P, Q)
+
+
+pc_descriptor_subset = [
+    'BertzCT',
+    'MolLogP',
+    'MolWt',
+    'TPSA',
+    'NumHAcceptors',
+    'NumHDonors',
+    'NumRotatableBonds',
+    'NumAliphaticRings',
+    'NumAromaticRings'
+]
+
+
+def calculate_pc_descriptors(smiles: Iterable[str]) -> np.array:
+    output = []
+
+    for i in smiles:
+        d = _calculate_pc_descriptors(i)
+        if d is not None:
+            output.append(d)
+
+    return np.array(output)
+
+
+def _calculate_pc_descriptors(smiles: str) -> np.array:
+    calc = MoleculeDescriptors.MolecularDescriptorCalculator(pc_descriptor_subset)
+
+    mol = Chem.MolFromSmiles(smiles)
+    if mol is None:
+        return None
+    _fp = calc.CalcDescriptors(mol)
+    _fp = np.array(_fp)
+    mask = np.isfinite(_fp)
+    if (mask == 0).sum() > 0:
+        print(f'{smi} contains an NAN physchem descriptor')
+        _fp[~mask] = 0
+
+    return _fp
