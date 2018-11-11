@@ -1,6 +1,6 @@
 from guacamol.common_scoring_functions import TanimotoScoringFunction, RdkitScoringFunction, CNS_MPO_ScoringFunction, \
     IsomerScoringFunction
-from guacamol.distribution_learning_benchmark import DistributionLearningBenchmark, NoveltyBenchmark
+from guacamol.distribution_learning_benchmark import DistributionLearningBenchmark, NoveltyBenchmark, KLDivBenchmark
 from guacamol.frechet_benchmark import FrechetBenchmark
 from guacamol.goal_directed_benchmark import GoalDirectedBenchmark
 from guacamol.goal_directed_score_contributions import uniform_specification
@@ -254,6 +254,11 @@ def novelty_benchmark(training_set_file: str, number_samples: int) -> Distributi
     return NoveltyBenchmark(number_samples=number_samples, training_set=smiles_list)
 
 
-def frechet_benchmark(training_set_file: str) -> DistributionLearningBenchmark:
+def kldiv_benchmark(training_set_file: str, number_samples: int) -> DistributionLearningBenchmark:
     smiles_list = [s.strip() for s in open(training_set_file).readlines()]
-    return FrechetBenchmark(training_set=smiles_list)
+    return KLDivBenchmark(number_samples=number_samples, training_set=smiles_list)
+
+
+def frechet_benchmark(training_set_file: str, number_samples: int) -> DistributionLearningBenchmark:
+    smiles_list = [s.strip() for s in open(training_set_file).readlines()]
+    return FrechetBenchmark(training_set=smiles_list, sample_size=number_samples)

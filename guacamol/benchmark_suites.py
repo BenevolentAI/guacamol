@@ -5,7 +5,8 @@ from guacamol.distribution_learning_benchmark import DistributionLearningBenchma
 from guacamol.goal_directed_benchmark import GoalDirectedBenchmark
 from guacamol.standard_benchmarks import hard_cobimetinib, similarity, logP_benchmark, cns_mpo, \
     qed_benchmark, median_molecule, novelty_benchmark, isomers_c11h24, isomers_c7h8n2o2, isomers_c9h10n2o2pf2cl, \
-    frechet_benchmark, tpsa_benchmark, hard_osimertinib, hard_fexofenadine, weird_physchem, start_pop_ranolazine
+    frechet_benchmark, tpsa_benchmark, hard_osimertinib, hard_fexofenadine, weird_physchem, start_pop_ranolazine, \
+    kldiv_benchmark
 
 
 def goal_directed_benchmark_suite(version_name: str) -> List[GoalDirectedBenchmark]:
@@ -16,7 +17,8 @@ def goal_directed_benchmark_suite(version_name: str) -> List[GoalDirectedBenchma
 
 
 def distribution_learning_benchmark_suite(chembl_file_path: str,
-                                          version_name: str) -> List[DistributionLearningBenchmark]:
+                                          version_name: str,
+                                          number_samples: int = 10000) -> List[DistributionLearningBenchmark]:
     """
     Returns a suite of benchmarks for a specified benchmark version
 
@@ -28,7 +30,7 @@ def distribution_learning_benchmark_suite(chembl_file_path: str,
         List of benchmaks
     """
     if version_name == 'v1':
-        return distribution_learning_suite_v1(chembl_file_path=chembl_file_path)
+        return distribution_learning_suite_v1(chembl_file_path=chembl_file_path, number_samples=number_samples)
 
     raise Exception(f'Distribution-learning benchmark suite "{version_name}" does not exist.')
 
@@ -47,7 +49,6 @@ def goal_directed_suite_v1() -> List[GoalDirectedBenchmark]:
         # start pop benchmark
         # e.g.
         start_pop_ranolazine(),
-
 
         # similarity Benchmarks
         similarity(smiles='CC1=CC=C(C=C1)C1=CC(=NN1C1=CC=C(C=C1)S(N)(=O)=O)C(F)(F)F', name='Celecoxxib'),
@@ -71,7 +72,8 @@ def goal_directed_suite_v1() -> List[GoalDirectedBenchmark]:
     ]
 
 
-def distribution_learning_suite_v1(chembl_file_path: str) -> List[DistributionLearningBenchmark]:
+def distribution_learning_suite_v1(chembl_file_path: str, number_samples: int = 10000) -> \
+        List[DistributionLearningBenchmark]:
     """
     Suite of distribution learning benchmarks, v1.
 
@@ -82,8 +84,9 @@ def distribution_learning_suite_v1(chembl_file_path: str) -> List[DistributionLe
         List of benchmarks, version 1
     """
     return [
-        ValidityBenchmark(number_samples=10000),
-        UniquenessBenchmark(number_samples=10000),
-        novelty_benchmark(training_set_file=chembl_file_path, number_samples=10000),
-        frechet_benchmark(training_set_file=chembl_file_path)
+        ValidityBenchmark(number_samples=number_samples),
+        UniquenessBenchmark(number_samples=number_samples),
+        novelty_benchmark(training_set_file=chembl_file_path, number_samples=number_samples),
+        kldiv_benchmark(training_set_file=chembl_file_path, number_samples=number_samples),
+        frechet_benchmark(training_set_file=chembl_file_path, number_samples=number_samples)
     ]

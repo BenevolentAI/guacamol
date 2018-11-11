@@ -1,7 +1,10 @@
 from guacamol.distribution_learning_benchmark import ValidityBenchmark, UniquenessBenchmark, NoveltyBenchmark, \
     KLDivBenchmark
+from guacamol.assess_distribution_learning import assess_distribution_learning
 from .mock_generator import MockGenerator
 import numpy as np
+import tempfile
+from os.path import join
 
 
 def test_validity_does_not_penalize_duplicates():
@@ -94,3 +97,28 @@ def test_KLdiv_benchmark_different_dist():
     assert result.metadata['kl_divs'].get('NumHDonors', None) > 0
     assert result.metadata['kl_divs'].get('NumRotatableBonds', None) > 0
     assert result.score < 1.0
+
+
+def test_distribution_learning_suite_v1():
+    generator = MockGenerator(
+        ['CCl', 'CCOCCCl', 'ClCCF', 'CCCOCCOCCCO', 'CF', 'CCOCC', 'CCF', 'CCCOCC', 'NNNNONNN', 'C=CC=C'] * 10)
+
+    mock_chembl = ['FCCOCC', 'C=CC=O', 'CCl', 'CCOCCCl', 'ClCCF', 'CCCOCCOCCCO', 'CF', 'CCOCC',
+                   'CCF']
+
+    temp_dir = tempfile.mkdtemp()
+    smiles_path = join(temp_dir, 'mock.smiles')
+    with open(smiles_path, 'w') as f:
+        for i in mock_chembl:
+            f.write(f'{i}\n')
+        f.close()
+
+    json_path = join(temp_dir, 'output.json')
+
+    assess_distribution_learning(model=generator,
+                                 chembl_training_file=smiles_path,
+                                 json_output_file=json_path,
+                                 number_samples=4)
+
+    with open(json_path, 'r') as f:
+        print(f.read())
