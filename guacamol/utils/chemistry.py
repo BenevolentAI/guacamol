@@ -216,7 +216,7 @@ def calculate_internal_pairwise_similarities(smiles_list: Collection[str]) -> np
     Returns:
         Symmetric matrix of pairwise similarities. Diagonal is set to zero.
     """
-    if len(smiles_list) > 4096:
+    if len(smiles_list) > 10000:
         logger.warning(f'Calculating internal similarity on large set of '
                        f'SMILES strings ({len(smiles_list)})')
 
@@ -241,7 +241,7 @@ def calculate_pairwise_similarities(smiles_list1: List[str], smiles_list2: List[
     Returns:
         Pairwise similarity matrix as np.array
     """
-    if len(smiles_list1) > 4096 or len(smiles_list2) > 4096:
+    if len(smiles_list1) > 10000 or len(smiles_list2) > 10000:
         logger.warning(f'Calculating similarity between large sets of '
                        f'SMILES strings ({len(smiles_list1)} x {len(smiles_list2)})')
 

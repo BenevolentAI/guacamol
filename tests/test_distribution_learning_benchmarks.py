@@ -118,6 +118,7 @@ def test_distribution_learning_suite_v1():
     _assess_distribution_learning(model=generator,
                                   chembl_training_file=smiles_path,
                                   json_output_file=json_path,
+                                  benchmark_version='v1',
                                   number_samples=4)
 
     with open(json_path, 'r') as f:

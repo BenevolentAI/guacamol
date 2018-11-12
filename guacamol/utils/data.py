@@ -1,8 +1,10 @@
 import os
 import sys
 import time
+from typing import List, Any, Optional
 from urllib.request import urlretrieve
 
+import numpy as np
 from tqdm import tqdm
 
 
@@ -26,6 +28,41 @@ def remove_duplicates(list_with_duplicates):
             unique_list.append(element)
 
     return unique_list
+
+
+def get_random_subset(dataset: List[Any], subset_size: int, seed: Optional[int] = None) -> List[Any]:
+    """
+    Get a random subset of some dataset.
+
+    For reproducibility, the random number generator seed can be specified.
+    Nevertheless, the state of the random number generator is restored to avoid side effects.
+
+    Args:
+        dataset: full set to select a subset from
+        subset_size: target size of the subset
+        seed: random number generator seed. Defaults to not setting the seed.
+
+    Returns:
+        subset of the original dataset as a list
+    """
+    if len(dataset) < subset_size:
+        raise Exception(f'The dataset to extract a subset from is too small: '
+                        f'{len(dataset)} < {subset_size}')
+
+    # save random number generator state
+    rng_state = np.random.get_state()
+
+    if seed is not None:
+        # extract a subset (for a given training set, the subset will always be identical).
+        np.random.seed(seed)
+
+    subset = np.random.choice(dataset, subset_size, replace=False)
+
+    if seed is not None:
+        # reset random number generator state, only if needed
+        np.random.set_state(rng_state)
+
+    return list(subset)
 
 
 def download_if_not_present(filename, uri):

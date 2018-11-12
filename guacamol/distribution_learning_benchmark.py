@@ -7,6 +7,7 @@ import numpy as np
 from guacamol.utils.chemistry import canonicalize_list, is_valid, calculate_pc_descriptors, continuous_kldiv, \
     pc_descriptor_subset, discrete_kldiv, calculate_internal_pairwise_similarities
 from guacamol.distribution_matching_generator import DistributionMatchingGenerator
+from guacamol.utils.data import get_random_subset
 from guacamol.utils.sampling_helpers import sample_valid_molecules, sample_unique_molecules
 
 logger = logging.getLogger(__name__)
@@ -169,7 +170,8 @@ class KLDivBenchmark(DistributionLearningBenchmark):
             training_set: molecules from the training set
         """
         super().__init__(name='KL divergence benchmark', number_samples=number_samples)
-        self.training_set_molecules = set(canonicalize_list(training_set, include_stereocenters=False))
+        self.training_set_molecules = get_random_subset(canonicalize_list(training_set, include_stereocenters=False),
+                                                        subset_size=self.number_samples, seed=42)
 
     def assess_model(self, model: DistributionMatchingGenerator) -> DistributionLearningBenchmarkResult:
         """

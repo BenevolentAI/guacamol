@@ -10,6 +10,7 @@ import numpy as np
 
 from guacamol.distribution_learning_benchmark import DistributionLearningBenchmark, DistributionLearningBenchmarkResult
 from guacamol.distribution_matching_generator import DistributionMatchingGenerator
+from guacamol.utils.data import get_random_subset
 from guacamol.utils.sampling_helpers import sample_valid_molecules
 
 logger = logging.getLogger(__name__)
@@ -49,21 +50,7 @@ class FrechetBenchmark(DistributionLearningBenchmark):
         Returns:
             list of SMILES strings
         """
-        if len(training_set) < self.sample_size:
-            raise Exception(f'The reference set of molecules for the Frechet benchmark is too small: '
-                            f'{len(training_set)} < {self.sample_size}')
-
-        # save random number generator state
-        rng_state = np.random.get_state()
-
-        # extract a subset (for a given training set, the subset will always be identical).
-        np.random.seed(42)
-        molecules = np.random.choice(training_set, self.sample_size, replace=False)
-
-        # reset random number generator state
-        np.random.set_state(rng_state)
-
-        return molecules
+        return get_random_subset(training_set, self.sample_size, seed=42)
 
     def assess_model(self, model: DistributionMatchingGenerator) -> DistributionLearningBenchmarkResult:
         chemnet = self._load_chemnet()
