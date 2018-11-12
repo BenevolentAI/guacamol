@@ -195,19 +195,16 @@ class KLDivBenchmark(DistributionLearningBenchmark):
         d_chembl = calculate_pc_descriptors(self.training_set_molecules)
 
         kldivs = {}
-        kldiv_sum = 0.0
 
         # now we calculate the kl divergence for the float valued descriptors ...
         for i in range(4):
             kldiv = continuous_kldiv(d_sampled[:, i], d_chembl[:, i])
             kldivs[pc_descriptor_subset[i]] = kldiv
-            kldiv_sum += kldiv
 
         # ... and for the int valued ones.
         for i in range(4, 9):
             kldiv = discrete_kldiv(d_sampled[:, i], d_chembl[:, i])
             kldivs[pc_descriptor_subset[i]] = kldiv
-            kldiv_sum += kldiv
 
         # pairwise similarity
 
@@ -219,7 +216,6 @@ class KLDivBenchmark(DistributionLearningBenchmark):
 
         kldiv_int_int = continuous_kldiv(chembl_sim, sampled_sim)
         kldivs['internal_similarity'] = kldiv_int_int
-        kldiv_sum += kldiv_int_int
 
         # for some reason, this runs into problems when both sets are identical.
         # cross_set_sim = calculate_pairwise_similarities(self.training_set_molecules, unique_molecules)
@@ -234,10 +230,12 @@ class KLDivBenchmark(DistributionLearningBenchmark):
             'kl_divs': kldivs
         }
 
-        # get the average over the 7 descriptors, and squash it so the result stays in [0,1].
-        kldiv_sum = np.exp(-kldiv_sum / 8.)
+        # Each KL divergence value is transformed to be in [0, 1].
+        # Then their average delivers the final score.
+        partial_scores = [np.exp(-score) for score in kldivs.values()]
+        score = sum(partial_scores) / len(partial_scores)
 
         return DistributionLearningBenchmarkResult(benchmark_name=self.name,
-                                                   score=kldiv_sum,
+                                                   score=score,
                                                    sampling_time=end_time - start_time,
                                                    metadata=metadata)
