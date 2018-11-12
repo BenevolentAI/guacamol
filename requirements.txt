@@ -2,6 +2,7 @@
 
 joblib==0.12.5
 numpy==1.15.2
+scipy==1.1.0
 tqdm==4.26.0
 git+https://github.com/bioinf-jku/FCD.git@master#egg=fcd
 

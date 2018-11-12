@@ -1,6 +1,6 @@
 from guacamol.distribution_learning_benchmark import ValidityBenchmark, UniquenessBenchmark, NoveltyBenchmark, \
     KLDivBenchmark
-from guacamol.assess_distribution_learning import assess_distribution_learning
+from guacamol.assess_distribution_learning import _assess_distribution_learning
 from .mock_generator import MockGenerator
 import numpy as np
 import tempfile
@@ -115,10 +115,10 @@ def test_distribution_learning_suite_v1():
 
     json_path = join(temp_dir, 'output.json')
 
-    assess_distribution_learning(model=generator,
-                                 chembl_training_file=smiles_path,
-                                 json_output_file=json_path,
-                                 number_samples=4)
+    _assess_distribution_learning(model=generator,
+                                  chembl_training_file=smiles_path,
+                                  json_output_file=json_path,
+                                  number_samples=4)
 
     with open(json_path, 'r') as f:
         print(f.read())

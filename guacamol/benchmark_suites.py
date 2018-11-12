@@ -18,7 +18,7 @@ def goal_directed_benchmark_suite(version_name: str) -> List[GoalDirectedBenchma
 
 def distribution_learning_benchmark_suite(chembl_file_path: str,
                                           version_name: str,
-                                          number_samples: int = 10000) -> List[DistributionLearningBenchmark]:
+                                          number_samples: int) -> List[DistributionLearningBenchmark]:
     """
     Returns a suite of benchmarks for a specified benchmark version
 
@@ -50,7 +50,7 @@ def goal_directed_suite_v1() -> List[GoalDirectedBenchmark]:
         # e.g.
         start_pop_ranolazine(),
 
-        ### similarity Benchmarks
+        # similarity Benchmarks
 
         # explicit rediscovery
         similarity(smiles='CC1=CC=C(C=C1)C1=CC(=NN1C1=CC=C(C=C1)S(N)(=O)=O)C(F)(F)F', name='Celecoxxib',

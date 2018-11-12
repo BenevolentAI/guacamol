@@ -1,5 +1,5 @@
 import logging
-from typing import Optional, List, Iterable
+from typing import Optional, List, Iterable, Collection
 
 import numpy as np
 from rdkit import Chem
@@ -209,15 +209,16 @@ def filter_and_canonicalize(smiles: str, holdout_set, holdout_fps, neutralizatio
     return []
 
 
-def calculate_internal_pairwise_similarities(smiles_list: List[str]) -> np.array:
+def calculate_internal_pairwise_similarities(smiles_list: Collection[str]) -> np.array:
     """
     Computes the pairwise similarities of the provided list of smiles against itself.
-    :param smiles_list:
-    :return: symmetric matrix of pairwise similarities. Diagonal is set to zero.
+
+    Returns:
+        Symmetric matrix of pairwise similarities. Diagonal is set to zero.
     """
     if len(smiles_list) > 4096:
         logger.warning(f'Calculating internal similarity on large set of '
-                       f'SMILES strings ({len(smiles_list)}')
+                       f'SMILES strings ({len(smiles_list)})')
 
     mols = get_mols(smiles_list)
     fps = get_fingerprints(mols)
@@ -233,12 +234,12 @@ def calculate_internal_pairwise_similarities(smiles_list: List[str]) -> np.array
     return similarities
 
 
-def calculate_pairwise_similarities(smiles_list1: Iterable[str], smiles_list2: Iterable[str]) -> np.array:
+def calculate_pairwise_similarities(smiles_list1: List[str], smiles_list2: List[str]) -> np.array:
     """
-    Computes the pairwise ECFP4 tanimoto similarity of the two smiles iterables.
-    :param smiles_list1: Iterable[str]
-    :param smiles_list2: Iterable[str]
-    :return: pairwise similarity matrix asnp.array
+    Computes the pairwise ECFP4 tanimoto similarity of the two smiles containers.
+
+    Returns:
+        Pairwise similarity matrix as np.array
     """
     if len(smiles_list1) > 4096 or len(smiles_list2) > 4096:
         logger.warning(f'Calculating similarity between large sets of '
@@ -265,6 +266,7 @@ def calculate_pairwise_similarities(smiles_list1: Iterable[str], smiles_list2: I
 def get_fingerprints_from_smileslist(smiles_list):
     """
     Converts the provided smiles into ECFP4 bitvectors of length 4096.
+
     Args:
         smiles_list: list of SMILES strings
 
@@ -277,6 +279,7 @@ def get_fingerprints_from_smileslist(smiles_list):
 def get_fingerprints(mols: Iterable[Chem.Mol], radius=2, length=4096):
     """
     Converts molecules to ECFP bitvectors.
+
     Args:
         mols: RDKit molecules
         radius: ECFP fingerprint radius
@@ -318,12 +321,6 @@ def highest_tanimoto_precalc_fps(mol, fps):
 
 
 def continuous_kldiv(X_baseline: np.array, X_sampled: np.array) -> float:
-    """
-
-    :param X_baseline:
-    :param X_sampled:
-    :return:
-    """
     kde1 = gaussian_kde(X_baseline)
     kde2 = gaussian_kde(X_sampled)
     x_eval = np.linspace(np.hstack([X_baseline, X_sampled]).min(), np.hstack([X_baseline, X_sampled]).max(), num=1000)
@@ -333,12 +330,6 @@ def continuous_kldiv(X_baseline: np.array, X_sampled: np.array) -> float:
 
 
 def discrete_kldiv(X_baseline: np.array, X_sampled: np.array) -> float:
-    """
-
-    :param X_baseline:
-    :param X_sampled:
-    :return:
-    """
     Q, bins = histogram(X_baseline, bins=10, density=True)
     Q = Q + 1.e-10
     P, _ = histogram(X_sampled, bins=bins, density=True)
@@ -380,7 +371,7 @@ def _calculate_pc_descriptors(smiles: str) -> np.array:
     _fp = np.array(_fp)
     mask = np.isfinite(_fp)
     if (mask == 0).sum() > 0:
-        print(f'{smi} contains an NAN physchem descriptor')
+        logger.warning(f'{smiles} contains an NAN physchem descriptor')
         _fp[~mask] = 0
 
     return _fp

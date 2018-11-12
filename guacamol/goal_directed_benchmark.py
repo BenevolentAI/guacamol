@@ -94,14 +94,16 @@ class GoalDirectedBenchmark:
         # accumulate internal_similarities in metadata
         int_simi_histogram = np.histogram(internal_similarities, bins=10, range=(0, 1), density=True)
 
-        top_x_dict['internal_similarity_max'] = internal_similarities.max()
-        top_x_dict['internal_similarity_mean'] = internal_similarities.mean()
-        top_x_dict["internal_similarity_histogram_density"] = int_simi_histogram[0].tolist(),
-        top_x_dict["internal_similarity_histogram_bins"] = int_simi_histogram[1].tolist(),
+        metadata: Dict[str, Any] = {}
+        metadata.update(top_x_dict)
+        metadata['internal_similarity_max'] = internal_similarities.max()
+        metadata['internal_similarity_mean'] = internal_similarities.mean()
+        metadata["internal_similarity_histogram_density"] = int_simi_histogram[0].tolist(),
+        metadata["internal_similarity_histogram_bins"] = int_simi_histogram[1].tolist(),
 
         return GoalDirectedBenchmarkResult(benchmark_name=self.name,
                                            score=global_score,
                                            optimized_molecules=sorted_scored_molecules,
                                            execution_time=end_time - start_time,
                                            number_scoring_function_calls=self.wrapped_objective.evaluations,
-                                           metadata=top_x_dict)
+                                           metadata=metadata)

@@ -5,7 +5,7 @@ from typing import Dict, Any, Iterable
 import numpy as np
 
 from guacamol.utils.chemistry import canonicalize_list, is_valid, calculate_pc_descriptors, continuous_kldiv, \
-    pc_descriptor_subset, discrete_kldiv, calculate_internal_pairwise_similarities, calculate_pairwise_similarities
+    pc_descriptor_subset, discrete_kldiv, calculate_internal_pairwise_similarities
 from guacamol.distribution_matching_generator import DistributionMatchingGenerator
 from guacamol.utils.sampling_helpers import sample_valid_molecules, sample_unique_molecules
 
@@ -168,7 +168,7 @@ class KLDivBenchmark(DistributionLearningBenchmark):
             number_samples: number of samples to generate from the model
             training_set: molecules from the training set
         """
-        super().__init__(name='Novelty benchmark', number_samples=number_samples)
+        super().__init__(name='KL divergence benchmark', number_samples=number_samples)
         self.training_set_molecules = set(canonicalize_list(training_set, include_stereocenters=False))
 
     def assess_model(self, model: DistributionMatchingGenerator) -> DistributionLearningBenchmarkResult:
@@ -193,7 +193,7 @@ class KLDivBenchmark(DistributionLearningBenchmark):
         d_chembl = calculate_pc_descriptors(self.training_set_molecules)
 
         kldivs = {}
-        kldiv_sum = 0
+        kldiv_sum = 0.0
 
         # now we calculate the kl divergence for the float valued descriptors ...
         for i in range(4):

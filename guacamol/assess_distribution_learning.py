@@ -17,8 +17,7 @@ logger.addHandler(logging.NullHandler())
 def assess_distribution_learning(model: DistributionMatchingGenerator,
                                  chembl_training_file: str,
                                  json_output_file='output_distribution_learning.json',
-                                 benchmark_version='v1',
-                                 number_samples: int = 10000) -> None:
+                                 benchmark_version='v1') -> None:
     """
     Assesses a distribution-matching model for de novo molecule design.
 
@@ -27,6 +26,22 @@ def assess_distribution_learning(model: DistributionMatchingGenerator,
         chembl_training_file: path to ChEMBL training set, necessary for some benchmarks
         json_output_file: Name of the file where to save the results in JSON format
         benchmark_version: which benchmark suite to execute
+    """
+    _assess_distribution_learning(model=model,
+                                  chembl_training_file=chembl_training_file,
+                                  json_output_file=json_output_file,
+                                  benchmark_version=benchmark_version,
+                                  number_samples=10000)
+
+
+def _assess_distribution_learning(model: DistributionMatchingGenerator,
+                                  chembl_training_file: str,
+                                  json_output_file: str,
+                                  benchmark_version: str,
+                                  number_samples: int) -> None:
+    """
+    Internal equivalent to assess_distribution_learning, but allows for a flexible number of samples.
+    To call directly only for testing.
     """
     logger.info(f'Benchmarking distribution learning, version {benchmark_version}')
     benchmarks = distribution_learning_benchmark_suite(chembl_file_path=chembl_training_file,
