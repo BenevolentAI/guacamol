@@ -186,13 +186,16 @@ def similarity_cns_mpo(smiles, molecule_name) -> GoalDirectedBenchmark:
                                  contribution_specification=specification)
 
 
-def similarity(smiles: str, name: str, fp_type: str = 'ECFP4', threshold: float = 0.7) -> GoalDirectedBenchmark:
+def similarity(smiles: str, name: str, fp_type: str = 'ECFP4', threshold: float = 0.7,
+               rediscovery: bool = False) -> GoalDirectedBenchmark:
     benchmark_name = f'{name} similarity benchmark'
 
     modifier = ClippedScoreModifier(upper_x=threshold)
     scoring_function = TanimotoScoringFunction(target=smiles, fp_type=fp_type, score_modifier=modifier)
-
-    specification = uniform_specification(1, 10, 100)
+    if rediscovery:
+        specification = uniform_specification(1)
+    else:
+        specification = uniform_specification(1, 10, 100)
 
     return GoalDirectedBenchmark(name=benchmark_name,
                                  objective=scoring_function,

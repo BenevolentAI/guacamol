@@ -54,11 +54,11 @@ def goal_directed_suite_v1() -> List[GoalDirectedBenchmark]:
 
         # explicit rediscovery
         similarity(smiles='CC1=CC=C(C=C1)C1=CC(=NN1C1=CC=C(C=C1)S(N)(=O)=O)C(F)(F)F', name='Celecoxxib',
-                   fp_type='ECFP4', threshold=1.0),
+                   fp_type='ECFP4', threshold=1.0, rediscovery=True),
         similarity(smiles='Cc1c(C)c2OC(C)(COc3ccc(CC4SC(=O)NC4=O)cc3)CCc2c(C)c1O', name='Troglitazone',
-                   fp_type='ECFP4', threshold=1.0),
+                   fp_type='ECFP4', threshold=1.0, rediscovery=True),
         similarity(smiles='CN(C)S(=O)(=O)c1ccc2Sc3ccccc3C(=CCCN4CCN(C)CC4)c2c1', name='Thiothixene',
-                   fp_type='ECFP4', threshold=1.0),
+                   fp_type='ECFP4', threshold=1.0, rediscovery=True),
 
         # generate similar stuff
         similarity(smiles='Clc4cccc(N3CCN(CCCCOc2ccc1c(NC(=O)CC1)c2)CC3)c4Cl',
