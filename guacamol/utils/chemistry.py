@@ -321,48 +321,37 @@ def highest_tanimoto_precalc_fps(mol, fps):
 
 
 def continuous_kldiv(X_baseline: np.array, X_sampled: np.array) -> float:
-    kde1 = gaussian_kde(X_baseline)
-    kde2 = gaussian_kde(X_sampled)
+    kde_P = gaussian_kde(X_baseline)
+    kde_Q = gaussian_kde(X_sampled)
     x_eval = np.linspace(np.hstack([X_baseline, X_sampled]).min(), np.hstack([X_baseline, X_sampled]).max(), num=1000)
-    Q = kde1(x_eval)
-    P = kde2(x_eval)
+    P = kde_P(x_eval) + 1e-10
+    Q = kde_Q(x_eval) + 1e-10
+
     return entropy(P, Q)
 
 
 def discrete_kldiv(X_baseline: np.array, X_sampled: np.array) -> float:
-    Q, bins = histogram(X_baseline, bins=10, density=True)
-    Q = Q + 1.e-10
-    P, _ = histogram(X_sampled, bins=bins, density=True)
+    P, bins = histogram(X_baseline, bins=10, density=True)
+    P += 1e-10
+    Q, _ = histogram(X_sampled, bins=bins, density=True)
+    Q += 1e-10
 
     return entropy(P, Q)
 
 
-pc_descriptor_subset = [
-    'BertzCT',
-    'MolLogP',
-    'MolWt',
-    'TPSA',
-    'NumHAcceptors',
-    'NumHDonors',
-    'NumRotatableBonds',
-    'NumAliphaticRings',
-    'NumAromaticRings'
-]
-
-
-def calculate_pc_descriptors(smiles: Iterable[str]) -> np.array:
+def calculate_pc_descriptors(smiles: Iterable[str], pc_descriptors: List[str]) -> np.array:
     output = []
 
     for i in smiles:
-        d = _calculate_pc_descriptors(i)
+        d = _calculate_pc_descriptors(i, pc_descriptors)
         if d is not None:
             output.append(d)
 
     return np.array(output)
 
 
-def _calculate_pc_descriptors(smiles: str) -> np.array:
-    calc = MoleculeDescriptors.MolecularDescriptorCalculator(pc_descriptor_subset)
+def _calculate_pc_descriptors(smiles: str, pc_descriptors: List[str]) -> np.array:
+    calc = MoleculeDescriptors.MolecularDescriptorCalculator(pc_descriptors)
 
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:

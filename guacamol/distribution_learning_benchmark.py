@@ -1,11 +1,11 @@
 import logging
 import time
 from abc import abstractmethod
-from typing import Dict, Any, Iterable
+from typing import Dict, Any, Iterable, List
 import numpy as np
 
 from guacamol.utils.chemistry import canonicalize_list, is_valid, calculate_pc_descriptors, continuous_kldiv, \
-    pc_descriptor_subset, discrete_kldiv, calculate_internal_pairwise_similarities
+    discrete_kldiv, calculate_internal_pairwise_similarities
 from guacamol.distribution_matching_generator import DistributionMatchingGenerator
 from guacamol.utils.data import get_random_subset
 from guacamol.utils.sampling_helpers import sample_valid_molecules, sample_unique_molecules
@@ -163,15 +163,26 @@ class KLDivBenchmark(DistributionLearningBenchmark):
     Computes the KL divergence between a number of samples and the training set for physchem descriptors
     """
 
-    def __init__(self, number_samples: int, training_set: Iterable[str]) -> None:
+    def __init__(self, number_samples: int, training_set: List[str]) -> None:
         """
         Args:
             number_samples: number of samples to generate from the model
             training_set: molecules from the training set
         """
         super().__init__(name='KL divergence benchmark', number_samples=number_samples)
-        self.training_set_molecules = get_random_subset(canonicalize_list(training_set, include_stereocenters=False),
-                                                        subset_size=self.number_samples, seed=42)
+        self.training_set_molecules = canonicalize_list(get_random_subset(training_set, self.number_samples, seed=42),
+                                                        include_stereocenters=False)
+        self.pc_descriptor_subset = [
+            'BertzCT',
+            'MolLogP',
+            'MolWt',
+            'TPSA',
+            'NumHAcceptors',
+            'NumHDonors',
+            'NumRotatableBonds',
+            'NumAliphaticRings',
+            'NumAromaticRings'
+        ]
 
     def assess_model(self, model: DistributionMatchingGenerator) -> DistributionLearningBenchmarkResult:
         """
@@ -191,20 +202,20 @@ class KLDivBenchmark(DistributionLearningBenchmark):
         unique_molecules = set(canonicalize_list(molecules, include_stereocenters=False))
 
         # first we calculate the descriptors, which are np.arrays of size n_samples x n_descriptors
-        d_sampled = calculate_pc_descriptors(unique_molecules)
-        d_chembl = calculate_pc_descriptors(self.training_set_molecules)
+        d_sampled = calculate_pc_descriptors(unique_molecules, self.pc_descriptor_subset)
+        d_chembl = calculate_pc_descriptors(self.training_set_molecules, self.pc_descriptor_subset)
 
         kldivs = {}
 
         # now we calculate the kl divergence for the float valued descriptors ...
         for i in range(4):
-            kldiv = continuous_kldiv(d_sampled[:, i], d_chembl[:, i])
-            kldivs[pc_descriptor_subset[i]] = kldiv
+            kldiv = continuous_kldiv(X_baseline=d_chembl[:, i], X_sampled=d_sampled[:, i])
+            kldivs[self.pc_descriptor_subset[i]] = kldiv
 
         # ... and for the int valued ones.
         for i in range(4, 9):
-            kldiv = discrete_kldiv(d_sampled[:, i], d_chembl[:, i])
-            kldivs[pc_descriptor_subset[i]] = kldiv
+            kldiv = discrete_kldiv(X_baseline=d_chembl[:, i], X_sampled=d_sampled[:, i])
+            kldivs[self.pc_descriptor_subset[i]] = kldiv
 
         # pairwise similarity
 
@@ -214,7 +225,7 @@ class KLDivBenchmark(DistributionLearningBenchmark):
         sampled_sim = calculate_internal_pairwise_similarities(unique_molecules)
         sampled_sim = sampled_sim.max(axis=1)
 
-        kldiv_int_int = continuous_kldiv(chembl_sim, sampled_sim)
+        kldiv_int_int = continuous_kldiv(X_baseline=chembl_sim, X_sampled=sampled_sim)
         kldivs['internal_similarity'] = kldiv_int_int
 
         # for some reason, this runs into problems when both sets are identical.

@@ -38,19 +38,7 @@ class FrechetBenchmark(DistributionLearningBenchmark):
         self.sample_size = sample_size
         super().__init__(name='Frechet ChemNet Distance benchmark', number_samples=self.sample_size)
 
-        self.reference_molecules = self._get_training_subset(training_set)
-
-    def _get_training_subset(self, training_set: List[str]) -> List[str]:
-        """
-        Get a subset of the training set from which the distribution statistics for FCD will be calculated.
-
-        For reproducibility, the random number generator seed is hard-coded. Nevertheless, the state of the
-        random number generator is restored to avoid side effects.
-
-        Returns:
-            list of SMILES strings
-        """
-        return get_random_subset(training_set, self.sample_size, seed=42)
+        self.reference_molecules = get_random_subset(training_set, self.sample_size, seed=42)
 
     def assess_model(self, model: DistributionMatchingGenerator) -> DistributionLearningBenchmarkResult:
         chemnet = self._load_chemnet()
