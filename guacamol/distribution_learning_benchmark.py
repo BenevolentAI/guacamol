@@ -134,7 +134,7 @@ class NoveltyBenchmark(DistributionLearningBenchmark):
             model: model to assess
         """
         start_time = time.time()
-        molecules = sample_unique_molecules(model=model, number_molecules=self.number_samples)
+        molecules = sample_unique_molecules(model=model, number_molecules=self.number_samples, max_tries=2)
         end_time = time.time()
 
         if len(molecules) != self.number_samples:
@@ -192,7 +192,7 @@ class KLDivBenchmark(DistributionLearningBenchmark):
             model: model to assess
         """
         start_time = time.time()
-        molecules = sample_unique_molecules(model=model, number_molecules=self.number_samples)
+        molecules = sample_unique_molecules(model=model, number_molecules=self.number_samples, max_tries=2)
         end_time = time.time()
 
         if len(molecules) != self.number_samples:
