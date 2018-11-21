@@ -62,7 +62,7 @@ class ValidityBenchmark(DistributionLearningBenchmark):
     """
 
     def __init__(self, number_samples) -> None:
-        super().__init__(name='Validity benchmark', number_samples=number_samples)
+        super().__init__(name='Validity', number_samples=number_samples)
 
     def assess_model(self, model: DistributionMatchingGenerator) -> DistributionLearningBenchmarkResult:
         start_time = time.time()
@@ -91,7 +91,7 @@ class UniquenessBenchmark(DistributionLearningBenchmark):
     """
 
     def __init__(self, number_samples) -> None:
-        super().__init__(name='Uniqueness benchmark', number_samples=number_samples)
+        super().__init__(name='Uniqueness', number_samples=number_samples)
 
     def assess_model(self, model: DistributionMatchingGenerator) -> DistributionLearningBenchmarkResult:
         start_time = time.time()
@@ -123,7 +123,7 @@ class NoveltyBenchmark(DistributionLearningBenchmark):
             number_samples: number of samples to generate from the model
             training_set: molecules from the training set
         """
-        super().__init__(name='Novelty benchmark', number_samples=number_samples)
+        super().__init__(name='Novelty', number_samples=number_samples)
         self.training_set_molecules = set(canonicalize_list(training_set, include_stereocenters=False))
 
     def assess_model(self, model: DistributionMatchingGenerator) -> DistributionLearningBenchmarkResult:
@@ -169,7 +169,7 @@ class KLDivBenchmark(DistributionLearningBenchmark):
             number_samples: number of samples to generate from the model
             training_set: molecules from the training set
         """
-        super().__init__(name='KL divergence benchmark', number_samples=number_samples)
+        super().__init__(name='KL divergence', number_samples=number_samples)
         self.training_set_molecules = canonicalize_list(get_random_subset(training_set, self.number_samples, seed=42),
                                                         include_stereocenters=False)
         self.pc_descriptor_subset = [

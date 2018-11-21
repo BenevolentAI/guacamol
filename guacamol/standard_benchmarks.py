@@ -18,7 +18,7 @@ def isomers_c11h24() -> GoalDirectedBenchmark:
 
     specification = uniform_specification(159)
 
-    return GoalDirectedBenchmark(name='C11H24 benchmark',
+    return GoalDirectedBenchmark(name='C11H24',
                                  objective=IsomerScoringFunction({'C': 11, 'H': 24}),
                                  contribution_specification=specification)
 
@@ -30,7 +30,7 @@ def isomers_c7h8n2o2() -> GoalDirectedBenchmark:
 
     specification = uniform_specification(100)
 
-    return GoalDirectedBenchmark(name='C7H8N2O2 benchmark',
+    return GoalDirectedBenchmark(name='C7H8N2O2',
                                  objective=IsomerScoringFunction({'C': 7, 'H': 8, 'N': 2, 'O': 2}),
                                  contribution_specification=specification)
 
@@ -42,7 +42,7 @@ def isomers_c9h10n2o2pf2cl() -> GoalDirectedBenchmark:
 
     specification = uniform_specification(100)
 
-    return GoalDirectedBenchmark(name='C9H10N2O2PF2Cl benchmark',
+    return GoalDirectedBenchmark(name='C9H10N2O2PF2Cl',
                                  objective=IsomerScoringFunction(
                                      {'C': 9, 'H': 10, 'N': 2, 'O': 2, 'P': 1, 'F': 2, 'Cl': 1}),
                                  contribution_specification=specification)
@@ -66,7 +66,7 @@ def hard_cobimetinib() -> GoalDirectedBenchmark:
 
     specification = uniform_specification(1, 10, 100)
 
-    return GoalDirectedBenchmark(name='Cobimetinib benchmark',
+    return GoalDirectedBenchmark(name='Cobimetinib MPO',
                                  objective=t_cns,
                                  contribution_specification=specification)
 
@@ -91,7 +91,7 @@ def hard_osimertinib() -> GoalDirectedBenchmark:
 
     specification = uniform_specification(1, 10, 100)
 
-    return GoalDirectedBenchmark(name='Osimertinib benchmark',
+    return GoalDirectedBenchmark(name='Osimertinib MPO',
                                  objective=make_osimertinib_great_again,
                                  contribution_specification=specification)
 
@@ -117,7 +117,7 @@ def hard_fexofenadine() -> GoalDirectedBenchmark:
 
     specification = uniform_specification(1, 10, 100)
 
-    return GoalDirectedBenchmark(name='Fexofenadine benchmark',
+    return GoalDirectedBenchmark(name='Fexofenadine MPO',
                                  objective=optimize_fexofenadine,
                                  contribution_specification=specification)
 
@@ -141,7 +141,7 @@ def start_pop_ranolazine() -> GoalDirectedBenchmark:
 
     specification = uniform_specification(1, 10, 100)
 
-    return GoalDirectedBenchmark(name='ranolazine startpop benchmark',
+    return GoalDirectedBenchmark(name='Ranolazine MPO',
                                  objective=optimize_ranolazine,
                                  contribution_specification=specification,
                                  starting_population=[ranolazine])
@@ -165,13 +165,13 @@ def weird_physchem() -> GoalDirectedBenchmark:
 
     specification = uniform_specification(1, 10, 100)
 
-    return GoalDirectedBenchmark(name='Weird Physchem benchmark',
+    return GoalDirectedBenchmark(name='Physchem MPO',
                                  objective=opt_weird,
                                  contribution_specification=specification)
 
 
 def similarity_cns_mpo(smiles, molecule_name) -> GoalDirectedBenchmark:
-    benchmark_name = f'{molecule_name} benchmark'
+    benchmark_name = f'{molecule_name}'
     os_tf = TanimotoScoringFunction(smiles, fp_type='FCFP4')
     os_ap = TanimotoScoringFunction(smiles, fp_type='AP')
     anti_fp = TanimotoScoringFunction(smiles, fp_type='ECFP6',
@@ -188,7 +188,8 @@ def similarity_cns_mpo(smiles, molecule_name) -> GoalDirectedBenchmark:
 
 def similarity(smiles: str, name: str, fp_type: str = 'ECFP4', threshold: float = 0.7,
                rediscovery: bool = False) -> GoalDirectedBenchmark:
-    benchmark_name = f'{name} similarity benchmark'
+    category = 'rediscovery' if rediscovery else 'similarity'
+    benchmark_name = f'{name} {category}'
 
     modifier = ClippedScoreModifier(upper_x=threshold)
     scoring_function = TanimotoScoringFunction(target=smiles, fp_type=fp_type, score_modifier=modifier)
@@ -203,7 +204,7 @@ def similarity(smiles: str, name: str, fp_type: str = 'ECFP4', threshold: float 
 
 
 def logP_benchmark(target: float) -> GoalDirectedBenchmark:
-    benchmark_name = f'logP (target: {target}) benchmark'
+    benchmark_name = f'logP (target: {target})'
     objective = RdkitScoringFunction(descriptor=logP,
                                      score_modifier=GaussianModifier(mu=target, sigma=1))
 
@@ -215,7 +216,7 @@ def logP_benchmark(target: float) -> GoalDirectedBenchmark:
 
 
 def tpsa_benchmark(target: float) -> GoalDirectedBenchmark:
-    benchmark_name = f'TPSA (target: {target}) benchmark'
+    benchmark_name = f'TPSA (target: {target})'
     objective = RdkitScoringFunction(descriptor=tpsa,
                                      score_modifier=GaussianModifier(mu=target, sigma=20.0))
 
@@ -228,13 +229,13 @@ def tpsa_benchmark(target: float) -> GoalDirectedBenchmark:
 
 def cns_mpo() -> GoalDirectedBenchmark:
     specification = uniform_specification(1, 10, 100)
-    return GoalDirectedBenchmark(name='CNS MPO benchmark', objective=CNS_MPO_ScoringFunction(),
+    return GoalDirectedBenchmark(name='CNS MPO', objective=CNS_MPO_ScoringFunction(),
                                  contribution_specification=specification)
 
 
 def qed_benchmark() -> GoalDirectedBenchmark:
     specification = uniform_specification(1, 10, 100)
-    return GoalDirectedBenchmark(name='Chemical beauty benchmark',
+    return GoalDirectedBenchmark(name='QED',
                                  objective=RdkitScoringFunction(descriptor=qed),
                                  contribution_specification=specification)
 
@@ -246,7 +247,7 @@ def median_molecule() -> GoalDirectedBenchmark:
 
     specification = uniform_specification(1, 10, 100)
 
-    return GoalDirectedBenchmark(name='Median molecules benchmark',
+    return GoalDirectedBenchmark(name='Median molecules',
                                  objective=median,
                                  contribution_specification=specification)
 
