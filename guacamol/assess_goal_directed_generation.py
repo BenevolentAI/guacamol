@@ -28,7 +28,7 @@ def assess_goal_directed_generation(goal_directed_molecule_generator: GoalDirect
     logger.info(f'Benchmarking goal-directed molecule generation, version {benchmark_version}')
     benchmarks = goal_directed_benchmark_suite(version_name=benchmark_version)
 
-    results = _evaluate_distribution_learning_benchmarks(
+    results = _evaluate_goal_directed_benchmarks(
         goal_directed_molecule_generator=goal_directed_molecule_generator,
         benchmarks=benchmarks)
 
@@ -43,9 +43,9 @@ def assess_goal_directed_generation(goal_directed_molecule_generator: GoalDirect
         f.write(json.dumps(benchmark_results, indent=4))
 
 
-def _evaluate_distribution_learning_benchmarks(goal_directed_molecule_generator: GoalDirectedGenerator,
-                                               benchmarks: List[GoalDirectedBenchmark]
-                                               ) -> List[GoalDirectedBenchmarkResult]:
+def _evaluate_goal_directed_benchmarks(goal_directed_molecule_generator: GoalDirectedGenerator,
+                                       benchmarks: List[GoalDirectedBenchmark]
+                                       ) -> List[GoalDirectedBenchmarkResult]:
     """
     Evaluate a model with the given benchmarks.
     Should not be called directly except for testing purposes.
