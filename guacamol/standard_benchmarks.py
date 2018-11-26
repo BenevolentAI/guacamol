@@ -19,7 +19,7 @@ def isomers_c11h24() -> GoalDirectedBenchmark:
     specification = uniform_specification(159)
 
     return GoalDirectedBenchmark(name='C11H24',
-                                 objective=IsomerScoringFunction({'C': 11, 'H': 24}),
+                                 objective=IsomerScoringFunction('C11H24'),
                                  contribution_specification=specification)
 
 
@@ -31,7 +31,7 @@ def isomers_c7h8n2o2() -> GoalDirectedBenchmark:
     specification = uniform_specification(100)
 
     return GoalDirectedBenchmark(name='C7H8N2O2',
-                                 objective=IsomerScoringFunction({'C': 7, 'H': 8, 'N': 2, 'O': 2}),
+                                 objective=IsomerScoringFunction('C7H8N2O2'),
                                  contribution_specification=specification)
 
 
@@ -43,8 +43,7 @@ def isomers_c9h10n2o2pf2cl() -> GoalDirectedBenchmark:
     specification = uniform_specification(100)
 
     return GoalDirectedBenchmark(name='C9H10N2O2PF2Cl',
-                                 objective=IsomerScoringFunction(
-                                     {'C': 9, 'H': 10, 'N': 2, 'O': 2, 'P': 1, 'F': 2, 'Cl': 1}),
+                                 objective=IsomerScoringFunction('C9H10N2O2PF2Cl'),
                                  contribution_specification=specification)
 
 

@@ -1,4 +1,4 @@
-from typing import Callable, Dict
+from typing import Callable
 
 from rdkit import Chem
 from rdkit.DataStructs.cDataStructs import TanimotoSimilarity
@@ -7,7 +7,7 @@ from guacamol.utils.descriptors import mol_weight, logP, num_H_donors, tpsa, num
 from guacamol.utils.fingerprints import get_fingerprint
 from guacamol.score_modifier import ScoreModifier, MinGaussianModifier, MaxGaussianModifier, GaussianModifier
 from guacamol.scoring_function import ScoringFunctionBasedOnRdkitMol, MoleculewiseScoringFunction
-from guacamol.utils.chemistry import smiles_to_rdkit_mol
+from guacamol.utils.chemistry import smiles_to_rdkit_mol, parse_molecular_formula
 
 
 class RdkitScoringFunction(ScoringFunctionBasedOnRdkitMol):
@@ -97,19 +97,21 @@ class IsomerScoringFunction(MoleculewiseScoringFunction):
     - total number of atoms with a Gaussian modifier with mu=6, sigma=2
     """
 
-    def __init__(self, number_atoms_of_type: Dict[str, int]) -> None:
+    def __init__(self, molecular_formula: str) -> None:
         """
         Args:
-            number_atoms_of_type: dictionary specifying how many atoms of each element type are required.
+            molecular_formula: target molecular formula
         """
         super().__init__()
 
-        total_number_atoms = sum(num_target_atoms for num_target_atoms in number_atoms_of_type.values())
+        element_occurrences = parse_molecular_formula(molecular_formula)
+
+        total_number_atoms = sum(element_tuple[1] for element_tuple in element_occurrences)
 
         # scoring functions for each element
         self.functions = [RdkitScoringFunction(descriptor=AtomCounter(element),
                                                score_modifier=GaussianModifier(mu=n_atoms, sigma=1.0))
-                          for element, n_atoms in number_atoms_of_type.items()]
+                          for element, n_atoms in element_occurrences]
 
         # scoring functions for the total number of atoms
         self.functions.append(RdkitScoringFunction(descriptor=num_atoms,

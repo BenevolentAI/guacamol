@@ -5,7 +5,7 @@ from guacamol.score_modifier import GaussianModifier
 
 
 def test_isomer_scoring_function_returns_one_for_correct_molecule():
-    c11h24 = IsomerScoringFunction({'C': 11, 'H': 24})
+    c11h24 = IsomerScoringFunction('C11H24')
 
     # all those smiles fit the formula C11H24
     smiles1 = 'CCCCCCCCCCC'
@@ -18,7 +18,7 @@ def test_isomer_scoring_function_returns_one_for_correct_molecule():
 
 
 def test_isomer_scoring_function_penalizes_additional_atoms():
-    c11h24 = IsomerScoringFunction({'C': 11, 'H': 24})
+    c11h24 = IsomerScoringFunction('C11H24')
 
     # all those smiles are C11H24O
     smiles1 = 'CCCCCCCCCCCO'
@@ -35,7 +35,7 @@ def test_isomer_scoring_function_penalizes_additional_atoms():
 
 
 def test_isomer_scoring_function_penalizes_incorrect_number_atoms():
-    c11h24 = IsomerScoringFunction({'C': 12, 'H': 24})
+    c11h24 = IsomerScoringFunction('C12H24')
 
     # all those smiles fit the formula C11H24O
     smiles1 = 'CCCCCCCCOCCC'

@@ -1,5 +1,5 @@
 from guacamol.utils.chemistry import canonicalize, canonicalize_list, is_valid, \
-    calculate_internal_pairwise_similarities, calculate_pairwise_similarities
+    calculate_internal_pairwise_similarities, calculate_pairwise_similarities, parse_molecular_formula
 
 
 def test_validity_empty_molecule():
@@ -82,3 +82,20 @@ def test_external_sim():
     for i in range(sim.shape[0]):
         for j in range(sim.shape[1]):
             assert sim[i, j] < 1.0
+
+
+def test_parse_molecular_formula():
+    formula = 'C6H9NOF2Cl2Br'
+    parsed = parse_molecular_formula(formula)
+
+    expected = [
+        ('C', 6),
+        ('H', 9),
+        ('N', 1),
+        ('O', 1),
+        ('F', 2),
+        ('Cl', 2),
+        ('Br', 1)
+    ]
+
+    assert parsed == expected

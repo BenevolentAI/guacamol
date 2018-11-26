@@ -1,5 +1,6 @@
 import logging
-from typing import Optional, List, Iterable, Collection
+import re
+from typing import Optional, List, Iterable, Collection, Tuple
 
 import numpy as np
 from rdkit import Chem
@@ -364,3 +365,25 @@ def _calculate_pc_descriptors(smiles: str, pc_descriptors: List[str]) -> np.arra
         _fp[~mask] = 0
 
     return _fp
+
+
+def parse_molecular_formula(formula: str) -> List[Tuple[str, int]]:
+    """
+    Parse a molecular formulat to get the element types and counts.
+
+    Args:
+        formula: molecular formula, f.i. "C8H3F3Br"
+
+    Returns:
+        A list of tuples containing element types and number of occurrences.
+    """
+    matches = re.findall(r'([A-Z][a-z]*)(\d*)', formula)
+
+    # Convert matches to the required format
+    results = []
+    for match in matches:
+        # convert count to an integer, and set it to 1 if the count is not visible in the molecular formula
+        count = 1 if not match[1] else int(match[1])
+        results.append((match[0], count))
+
+    return results
