@@ -1,5 +1,7 @@
 # Guacamol
 
+[![Build Status](https://travis-ci.com/benevolentAI/guacamol.svg?branch=master)](https://travis-ci.com/benevolentAI/guacamol)
+
 **Guacamol** is an open source Python package for benchmarking of models for 
 *de novo* molecular design.
 
