@@ -1,13 +1,13 @@
-# Guacamol
+# GuacaMol
 
 [![Build Status](https://travis-ci.com/benevolentAI/guacamol.svg?branch=master)](https://travis-ci.com/benevolentAI/guacamol)
 
-**Guacamol** is an open source Python package for benchmarking of models for 
+**GuacaMol** is an open source Python package for benchmarking of models for 
 *de novo* molecular design.
 
 For an in-depth explanation of the types of benchmarks and baseline scores,
 please consult our paper 
-[Benchmarking Models for De Novo Molecular Design](TODO:url)
+[Benchmarking Models for De Novo Molecular Design](https://arxiv.org/abs/1811.09621)
 
 ## Installation
 
@@ -47,12 +47,12 @@ Follow the procedure described below to get standardized datasets.
 
 ### Download
 
-You can download pre-built datasets here:
+You can download pre-built datasets [here](https://figshare.com/projects/GuacaMol/56639):
 
-[//]: # (TODO: upload and fill in links)
-md5 `05ad85d871958a05c02ab51a4fde8530` [training](url)  
-md5 `e53db4bff7dc4784123ae6df72e3b1f0` [validation](url)  
-md5 `677b757ccec4809febd83850b43e1616` [test](url)  
+md5 `05ad85d871958a05c02ab51a4fde8530` [training](https://ndownloader.figshare.com/files/13612760 )  
+md5 `e53db4bff7dc4784123ae6df72e3b1f0` [validation](https://ndownloader.figshare.com/files/13612766)  
+md5 `677b757ccec4809febd83850b43e1616` [test](https://ndownloader.figshare.com/files/13612757)  
+md5 `7d45bc95c33c10cb96ef5e78c38ac0b6` [all](https://ndownloader.figshare.com/files/13612745)  
 
 
 ### Generation
