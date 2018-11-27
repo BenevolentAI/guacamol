@@ -120,3 +120,40 @@ class IsomerScoringFunction(MoleculewiseScoringFunction):
     def raw_score(self, smiles: str) -> float:
         # return the average of all scoring functions
         return sum(f.score(smiles) for f in self.functions) / len(self.functions)
+
+
+class SMARTSScoringFunction(ScoringFunctionBasedOnRdkitMol):
+    """
+    Tests for SMARTS which should be or should not be present in the compound.
+
+
+    """
+
+    def __init__(self, target: str, inverse=False) -> None:
+        """
+
+        :param target: The SMARTS string to match.
+        :param inverse: Specifies whether the SMARTS is desired (False) or an antipattern, which we don't want to see
+                        in the molecules (inverse=False)
+        """
+        super().__init__()
+        self.inverse = inverse
+        self.smarts = target
+        self.target = Chem.MolFromSmarts(target)
+
+        assert target is not None
+
+    def score_mol(self, mol: Chem.Mol) -> float:
+
+        matches = mol.GetSubstructMatches(self.target)
+
+        if len(matches) > 0:
+            if self.inverse:
+                return 0.0
+            else:
+                return 1.0
+        else:
+            if self.inverse:
+                return 1.0
+            else:
+                return 0.0

@@ -1,6 +1,6 @@
 import pytest
 
-from guacamol.common_scoring_functions import IsomerScoringFunction
+from guacamol.common_scoring_functions import IsomerScoringFunction, SMARTSScoringFunction
 from guacamol.score_modifier import GaussianModifier
 
 
@@ -49,3 +49,21 @@ def test_isomer_scoring_function_penalizes_incorrect_number_atoms():
     assert c11h24.score(smiles1) == pytest.approx(expected_score)
     assert c11h24.score(smiles2) == pytest.approx(expected_score)
     assert c11h24.score(smiles3) == pytest.approx(expected_score)
+
+
+def test_smarts_function():
+    mol1 = 'COc1cc(N(C)CCN(C)C)c(NC(=O)C=C)cc1Nc2nccc(n2)c3cn(C)c4ccccc34'
+    mol2 = 'Cc1c(C)c2OC(C)(COc3ccc(CC4SC(=O)NC4=O)cc3)CCc2c(C)c1O'
+    smarts = '[#7;h1]c1ncccn1'
+
+    scofu1 = SMARTSScoringFunction(target=smarts)
+    scofu_inv = SMARTSScoringFunction(target=smarts, inverse=True)
+
+    assert scofu1.score(mol1) == 1.0
+    assert scofu1.score(mol2) == 0.0
+    assert scofu_inv.score(mol1) == 0.0
+    assert scofu_inv.score(mol2) == 1.0
+
+    assert scofu1.score_list([mol1])[0] == 1.0
+    assert scofu1.score_list([mol2])[0] == 0.0
+
