@@ -1,7 +1,28 @@
+from math import sqrt
+from typing import List
+
 import pytest
 
 from guacamol.common_scoring_functions import IsomerScoringFunction, SMARTSScoringFunction
 from guacamol.score_modifier import GaussianModifier
+from guacamol.scoring_function import BatchScoringFunction, ArithmeticMeanScoringFunction, GeometricMeanScoringFunction
+
+
+class MockScoringFunction(BatchScoringFunction):
+    """
+    Mock scoring function that returns values from an array given in the constructor.
+    """
+
+    def __init__(self, values: List[float]) -> None:
+        super().__init__()
+        self.values = values
+        self.index = 0
+
+    def raw_score_list(self, smiles_list: List[str]) -> List[float]:
+        start = self.index
+        self.index += len(smiles_list)
+        end = self.index
+        return self.values[start:end]
 
 
 def test_isomer_scoring_function_returns_one_for_correct_molecule():
@@ -67,3 +88,46 @@ def test_smarts_function():
     assert scofu1.score_list([mol1])[0] == 1.0
     assert scofu1.score_list([mol2])[0] == 0.0
 
+
+def test_arithmetic_mean_scoring_function():
+    # define a scoring function returning the mean from two mock functions
+    # and assert that it returns the correct values.
+
+    weight_1 = 0.4
+    weight_2 = 0.6
+
+    mock_values_1 = [0.232, 0.665, 0.0, 1.0, 0.993]
+    mock_values_2 = [0.010, 0.335, 0.8, 0.3, 0.847]
+
+    mock_1 = MockScoringFunction(mock_values_1)
+    mock_2 = MockScoringFunction(mock_values_2)
+
+    scoring_function = ArithmeticMeanScoringFunction(scoring_functions=[mock_1, mock_2],
+                                                     weights=[weight_1, weight_2])
+
+    smiles = ['CC'] * 5
+
+    scores = scoring_function.score_list(smiles)
+    expected = [weight_1 * v1 + weight_2 * v2 for v1, v2 in zip(mock_values_1, mock_values_2)]
+
+    assert scores == expected
+
+
+def test_geometric_mean_scoring_function():
+    # define a scoring function returning the geometric mean from two mock functions
+    # and assert that it returns the correct values.
+
+    mock_values_1 = [0.232, 0.665, 0.0, 1.0, 0.993]
+    mock_values_2 = [0.010, 0.335, 0.8, 0.3, 0.847]
+
+    mock_1 = MockScoringFunction(mock_values_1)
+    mock_2 = MockScoringFunction(mock_values_2)
+
+    scoring_function = GeometricMeanScoringFunction(scoring_functions=[mock_1, mock_2])
+
+    smiles = ['CC'] * 5
+
+    scores = scoring_function.score_list(smiles)
+    expected = [sqrt(v1 * v2) for v1, v2 in zip(mock_values_1, mock_values_2)]
+
+    assert scores == expected

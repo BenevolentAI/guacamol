@@ -5,7 +5,7 @@ from guacamol.frechet_benchmark import FrechetBenchmark
 from guacamol.goal_directed_benchmark import GoalDirectedBenchmark
 from guacamol.goal_directed_score_contributions import uniform_specification
 from guacamol.score_modifier import MinGaussianModifier, MaxGaussianModifier, ClippedScoreModifier, GaussianModifier
-from guacamol.scoring_function import MultiPropertyScoringFunction
+from guacamol.scoring_function import ArithmeticMeanScoringFunction
 from guacamol.utils.descriptors import num_rotatable_bonds, num_aromatic_rings, logP, qed, tpsa, bertz, mol_weight, \
     AtomCounter
 
@@ -61,7 +61,7 @@ def hard_cobimetinib() -> GoalDirectedBenchmark:
     rings = RdkitScoringFunction(descriptor=num_aromatic_rings,
                                  score_modifier=MaxGaussianModifier(mu=3, sigma=1))
 
-    t_cns = MultiPropertyScoringFunction([os_tf, os_ap, rot_b, rings, CNS_MPO_ScoringFunction()])
+    t_cns = ArithmeticMeanScoringFunction([os_tf, os_ap, rot_b, rings, CNS_MPO_ScoringFunction()])
 
     specification = uniform_specification(1, 10, 100)
 
@@ -85,7 +85,7 @@ def hard_osimertinib() -> GoalDirectedBenchmark:
     logP_scoring = RdkitScoringFunction(descriptor=logP,
                                         score_modifier=MinGaussianModifier(mu=1, sigma=1))
 
-    make_osimertinib_great_again = MultiPropertyScoringFunction(
+    make_osimertinib_great_again = ArithmeticMeanScoringFunction(
         [similar_to_osimertinib, but_not_too_similar, tpsa_over_100, logP_scoring])
 
     specification = uniform_specification(1, 10, 100)
@@ -111,7 +111,7 @@ def hard_fexofenadine() -> GoalDirectedBenchmark:
     logP_under_4 = RdkitScoringFunction(descriptor=logP,
                                         score_modifier=MinGaussianModifier(mu=4, sigma=1))
 
-    optimize_fexofenadine = MultiPropertyScoringFunction(
+    optimize_fexofenadine = ArithmeticMeanScoringFunction(
         [similar_to_fexofenadine, tpsa_over_90, logP_under_4])
 
     specification = uniform_specification(1, 10, 100)
@@ -136,7 +136,7 @@ def start_pop_ranolazine() -> GoalDirectedBenchmark:
     fluorine = RdkitScoringFunction(descriptor=AtomCounter('F'),
                                     score_modifier=GaussianModifier(mu=1, sigma=1.0))
 
-    optimize_ranolazine = MultiPropertyScoringFunction([similar_to_ranolazine, logP_under_4, fluorine, aroma])
+    optimize_ranolazine = ArithmeticMeanScoringFunction([similar_to_ranolazine, logP_under_4, fluorine, aroma])
 
     specification = uniform_specification(1, 10, 100)
 
@@ -159,7 +159,7 @@ def weird_physchem() -> GoalDirectedBenchmark:
     fluorine = RdkitScoringFunction(descriptor=AtomCounter('F'),
                                     score_modifier=GaussianModifier(mu=6, sigma=1.0))
 
-    opt_weird = MultiPropertyScoringFunction(
+    opt_weird = ArithmeticMeanScoringFunction(
         [min_bertz, mol_under_400, aroma, fluorine])
 
     specification = uniform_specification(1, 10, 100)
@@ -176,7 +176,7 @@ def similarity_cns_mpo(smiles, molecule_name) -> GoalDirectedBenchmark:
     anti_fp = TanimotoScoringFunction(smiles, fp_type='ECFP6',
                                       score_modifier=MinGaussianModifier(mu=0.70, sigma=0.1))
 
-    t_cns = MultiPropertyScoringFunction([os_tf, os_ap, anti_fp, CNS_MPO_ScoringFunction()])
+    t_cns = ArithmeticMeanScoringFunction([os_tf, os_ap, anti_fp, CNS_MPO_ScoringFunction()])
 
     specification = uniform_specification(1, 10, 100)
 
@@ -242,7 +242,7 @@ def qed_benchmark() -> GoalDirectedBenchmark:
 def median_molecule() -> GoalDirectedBenchmark:
     t_camphor = TanimotoScoringFunction('CC1(C)C2CCC1(C)C(=O)C2', fp_type='ECFP4')
     t_menthol = TanimotoScoringFunction('CC(C)C1CCC(C)CC1O', fp_type='ECFP4')
-    median = MultiPropertyScoringFunction([t_menthol, t_camphor])
+    median = ArithmeticMeanScoringFunction([t_menthol, t_camphor])
 
     specification = uniform_specification(1, 10, 100)
 

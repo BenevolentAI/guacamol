@@ -173,9 +173,9 @@ class ScoringFunctionBasedOnRdkitMol(MoleculewiseScoringFunction):
         raise NotImplementedError
 
 
-class MultiPropertyScoringFunction(BatchScoringFunction):
+class ArithmeticMeanScoringFunction(BatchScoringFunction):
     """
-    Scoring function that combines linearly multiple scoring functions.
+    Scoring function that combines multiple scoring functions linearly.
     """
 
     def __init__(self, scoring_functions: List[ScoringFunction], weights=None) -> None:
@@ -195,13 +195,40 @@ class MultiPropertyScoringFunction(BatchScoringFunction):
     def raw_score_list(self, smiles_list: List[str]) -> List[float]:
         scores = []
 
-        for i, function in enumerate(self.scoring_functions):
+        for function, weight in zip(self.scoring_functions, self.weights):
             res = function.score_list(smiles_list)
-            scores.append(self.weights[i] * np.array(res))
+            scores.append(weight * np.array(res))
 
         scores = np.array(scores).sum(axis=0) / np.sum(self.weights)
 
         return list(scores)
+
+
+class GeometricMeanScoringFunction(MoleculewiseScoringFunction):
+    """
+    Scoring function that combines multiple scoring functions multiplicatively.
+    """
+
+    def __init__(self, scoring_functions: List[ScoringFunction]) -> None:
+        """
+        Args:
+            scoring_functions: scoring functions to combine
+        """
+        super().__init__()
+
+        self.scoring_functions = scoring_functions
+
+    def raw_score(self, smiles: str) -> float:
+        partial_scores = [f.score(smiles) for f in self.scoring_functions]
+        if self.corrupt_score in partial_scores:
+            return self.corrupt_score
+
+        return self.geometric_mean(partial_scores)
+
+    @staticmethod
+    def geometric_mean(scores: List[float]) -> float:
+        a = np.array(scores)
+        return a.prod() ** (1.0 / len(a))
 
 
 class ScoringFunctionWrapper(ScoringFunction):
