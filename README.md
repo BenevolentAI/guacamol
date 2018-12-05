@@ -13,7 +13,7 @@ please consult our paper
 
 The easiest way to install `guacamol` is with `pip`:
 ```bash
-pip install git+https://github.com/BenevolentAI/guacamol.git#egg=guacamol --process-dependency-links
+pip install guacamol
 ```
 
 `guacamol` requires the [RDKit library](http://rdkit.org/) (version `2018.09.1.0` or newer).

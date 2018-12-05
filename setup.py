@@ -24,12 +24,12 @@ setup(name='guacamol',
       packages=['guacamol', 'guacamol.data', 'guacamol.utils'],
       license='MIT',
       install_requires=[
-          'joblib==0.12.5',
-          'numpy==1.15.2',
-          'tqdm==4.26.0',
-          'fcd==1.0'
+          'joblib>=0.12.5',
+          'numpy>=1.15.2',
+          'scipy>=1.1.0',
+          'tqdm>=4.26.0',
+          'FCD==1.0'
       ],
-      dependency_links=['https://github.com/bioinf-jku/FCD/tarball/master#egg=fcd-1.0'],
       python_requires='>=3.6',
       extras_require={
           'rdkit': ['rdkit>=2018.09.1.0'],
