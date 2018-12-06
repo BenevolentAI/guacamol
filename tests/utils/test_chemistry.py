@@ -28,7 +28,7 @@ def test_validity_correct_molecules():
 
 
 def test_isomeric_canonicalisation():
-    endiandric_acid = 'OC(=O)[C@H]5C2\C=C/C3[C@@H]5CC4[C@H](C\C=C\C=C\c1ccccc1)[C@@H]2[C@@H]34'
+    endiandric_acid = r'OC(=O)[C@H]5C2\C=C/C3[C@@H]5CC4[C@H](C\C=C\C=C\c1ccccc1)[C@@H]2[C@@H]34'
 
     with_stereocenters = canonicalize(endiandric_acid, include_stereocenters=True)
     without_stereocenters = canonicalize(endiandric_acid, include_stereocenters=False)

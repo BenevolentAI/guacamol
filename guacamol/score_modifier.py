@@ -122,7 +122,7 @@ MaxGaussianModifier = partial(MinMaxGaussianModifier, minimize=False)
 
 
 class ClippedScoreModifier(ScoreModifier):
-    """
+    r"""
     Clips a score between specified low and high scores, and does a linear interpolation in between.
 
     The function looks like this:
