@@ -47,7 +47,7 @@ def isomers_c9h10n2o2pf2cl() -> GoalDirectedBenchmark:
                                  contribution_specification=specification)
 
 
-def hard_cobimetinib() -> GoalDirectedBenchmark:
+def hard_cobimetinib(max_logP=5.0) -> GoalDirectedBenchmark:
     smiles = 'OC1(CN(C1)C(=O)C1=C(NC2=C(F)C=C(I)C=C2)C(F)=C(F)C=C1)C1CCCCN1'
 
     modifier = ClippedScoreModifier(upper_x=0.7)
@@ -61,7 +61,7 @@ def hard_cobimetinib() -> GoalDirectedBenchmark:
     rings = RdkitScoringFunction(descriptor=num_aromatic_rings,
                                  score_modifier=MaxGaussianModifier(mu=3, sigma=1))
 
-    t_cns = ArithmeticMeanScoringFunction([os_tf, os_ap, rot_b, rings, CNS_MPO_ScoringFunction()])
+    t_cns = ArithmeticMeanScoringFunction([os_tf, os_ap, rot_b, rings, CNS_MPO_ScoringFunction(max_logP=max_logP)])
 
     specification = uniform_specification(1, 10, 100)
 
@@ -169,14 +169,14 @@ def weird_physchem() -> GoalDirectedBenchmark:
                                  contribution_specification=specification)
 
 
-def similarity_cns_mpo(smiles, molecule_name) -> GoalDirectedBenchmark:
+def similarity_cns_mpo(smiles, molecule_name, max_logP=5.0) -> GoalDirectedBenchmark:
     benchmark_name = f'{molecule_name}'
     os_tf = TanimotoScoringFunction(smiles, fp_type='FCFP4')
     os_ap = TanimotoScoringFunction(smiles, fp_type='AP')
     anti_fp = TanimotoScoringFunction(smiles, fp_type='ECFP6',
                                       score_modifier=MinGaussianModifier(mu=0.70, sigma=0.1))
 
-    t_cns = ArithmeticMeanScoringFunction([os_tf, os_ap, anti_fp, CNS_MPO_ScoringFunction()])
+    t_cns = ArithmeticMeanScoringFunction([os_tf, os_ap, anti_fp, CNS_MPO_ScoringFunction(max_logP=max_logP)])
 
     specification = uniform_specification(1, 10, 100)
 
@@ -226,9 +226,9 @@ def tpsa_benchmark(target: float) -> GoalDirectedBenchmark:
                                  contribution_specification=specification)
 
 
-def cns_mpo() -> GoalDirectedBenchmark:
+def cns_mpo(max_logP=5.0) -> GoalDirectedBenchmark:
     specification = uniform_specification(1, 10, 100)
-    return GoalDirectedBenchmark(name='CNS MPO', objective=CNS_MPO_ScoringFunction(),
+    return GoalDirectedBenchmark(name='CNS MPO', objective=CNS_MPO_ScoringFunction(max_logP=max_logP),
                                  contribution_specification=specification)
 
 
