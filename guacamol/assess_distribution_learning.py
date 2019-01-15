@@ -54,6 +54,7 @@ def _assess_distribution_learning(model: DistributionMatchingGenerator,
     benchmark_results['guacamol_version'] = guacamol.__version__
     benchmark_results['benchmark_suite_version'] = benchmark_version
     benchmark_results['timestamp'] = get_time_string()
+    benchmark_results['samples'] = model.generate(100)
     benchmark_results['results'] = [vars(result) for result in results]
 
     logger.info(f'Save results to file {json_output_file}')
