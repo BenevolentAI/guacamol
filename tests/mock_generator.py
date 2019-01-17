@@ -15,7 +15,6 @@ class MockGenerator(DistributionMatchingGenerator):
 
     def generate(self, number_samples: int) -> List[str]:
         end = self.cursor + number_samples
-        assert end <= len(self.molecules)
 
         sampled_molecules = self.molecules[self.cursor:end]
         self.cursor = end

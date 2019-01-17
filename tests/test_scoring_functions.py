@@ -6,6 +6,7 @@ import pytest
 from guacamol.common_scoring_functions import IsomerScoringFunction, SMARTSScoringFunction
 from guacamol.score_modifier import GaussianModifier
 from guacamol.scoring_function import BatchScoringFunction, ArithmeticMeanScoringFunction, GeometricMeanScoringFunction
+from guacamol.utils.math import geometric_mean
 
 
 class MockScoringFunction(BatchScoringFunction):
@@ -25,38 +26,55 @@ class MockScoringFunction(BatchScoringFunction):
         return self.values[start:end]
 
 
+def test_isomer_scoring_function_uses_geometric_mean_by_default():
+    scoring_function = IsomerScoringFunction('C2H4')
+    assert scoring_function.mean_function == geometric_mean
+
+
 def test_isomer_scoring_function_returns_one_for_correct_molecule():
-    c11h24 = IsomerScoringFunction('C11H24')
+    c11h24_arithmetic = IsomerScoringFunction('C11H24', mean_function='arithmetic')
+    c11h24_geometric = IsomerScoringFunction('C11H24', mean_function='geometric')
 
     # all those smiles fit the formula C11H24
     smiles1 = 'CCCCCCCCCCC'
     smiles2 = 'CC(CCC)CCCCCC'
     smiles3 = 'CCCCC(CC(C)CC)C'
 
-    assert c11h24.score(smiles1) == 1.0
-    assert c11h24.score(smiles2) == 1.0
-    assert c11h24.score(smiles3) == 1.0
+    assert c11h24_arithmetic.score(smiles1) == 1.0
+    assert c11h24_arithmetic.score(smiles2) == 1.0
+    assert c11h24_arithmetic.score(smiles3) == 1.0
+    assert c11h24_geometric.score(smiles1) == 1.0
+    assert c11h24_geometric.score(smiles2) == 1.0
+    assert c11h24_geometric.score(smiles3) == 1.0
 
 
 def test_isomer_scoring_function_penalizes_additional_atoms():
-    c11h24 = IsomerScoringFunction('C11H24')
+    c11h24_arithmetic = IsomerScoringFunction('C11H24', mean_function='arithmetic')
+    c11h24_geometric = IsomerScoringFunction('C11H24', mean_function='geometric')
 
     # all those smiles are C11H24O
     smiles1 = 'CCCCCCCCCCCO'
     smiles2 = 'CC(CCC)COCCCCC'
     smiles3 = 'CCCCOC(CC(C)CC)C'
 
-    # the penalty corresponds to a deviation of 1.0 from the gaussian modifier in the total number of atoms
-    penalty_tot_num_atoms = 1.0 - GaussianModifier(mu=0, sigma=2)(1.0)
-    expected_score = 1.0 - penalty_tot_num_atoms / 3.0
+    # the penalty corresponds to a deviation of 1.0 from the gaussian modifier for the total number of atoms
+    n_atoms_score = GaussianModifier(mu=0, sigma=2)(1.0)
+    c_score = 1.0
+    h_score = 1.0
+    expected_score_arithmetic = (n_atoms_score + c_score + h_score) / 3.0
+    expected_score_geometric = (n_atoms_score * c_score * h_score) ** (1 / 3)
 
-    assert c11h24.score(smiles1) == pytest.approx(expected_score)
-    assert c11h24.score(smiles2) == pytest.approx(expected_score)
-    assert c11h24.score(smiles3) == pytest.approx(expected_score)
+    assert c11h24_arithmetic.score(smiles1) == pytest.approx(expected_score_arithmetic)
+    assert c11h24_arithmetic.score(smiles2) == pytest.approx(expected_score_arithmetic)
+    assert c11h24_arithmetic.score(smiles3) == pytest.approx(expected_score_arithmetic)
+    assert c11h24_geometric.score(smiles1) == pytest.approx(expected_score_geometric)
+    assert c11h24_geometric.score(smiles2) == pytest.approx(expected_score_geometric)
+    assert c11h24_geometric.score(smiles3) == pytest.approx(expected_score_geometric)
 
 
 def test_isomer_scoring_function_penalizes_incorrect_number_atoms():
-    c11h24 = IsomerScoringFunction('C12H24')
+    c11h24_arithmetic = IsomerScoringFunction('C12H24', mean_function='arithmetic')
+    c11h24_geometric = IsomerScoringFunction('C12H24', mean_function='geometric')
 
     # all those smiles fit the formula C11H24O
     smiles1 = 'CCCCCCCCOCCC'
@@ -64,12 +82,18 @@ def test_isomer_scoring_function_penalizes_incorrect_number_atoms():
     smiles3 = 'COCCCC(CC(C)CC)C'
 
     # the penalty corresponds to a deviation of 1.0 from the gaussian modifier in the number of C atoms
-    penalty_tot_num_atoms = 1.0 - GaussianModifier(mu=0, sigma=1)(1.0)
-    expected_score = 1.0 - penalty_tot_num_atoms / 3.0
+    c_score = GaussianModifier(mu=0, sigma=1)(1.0)
+    n_atoms_score = 1.0
+    h_score = 1.0
+    expected_score_arithmetic = (n_atoms_score + c_score + h_score) / 3.0
+    expected_score_geometric = (n_atoms_score * c_score * h_score) ** (1 / 3)
 
-    assert c11h24.score(smiles1) == pytest.approx(expected_score)
-    assert c11h24.score(smiles2) == pytest.approx(expected_score)
-    assert c11h24.score(smiles3) == pytest.approx(expected_score)
+    assert c11h24_arithmetic.score(smiles1) == pytest.approx(expected_score_arithmetic)
+    assert c11h24_arithmetic.score(smiles2) == pytest.approx(expected_score_arithmetic)
+    assert c11h24_arithmetic.score(smiles3) == pytest.approx(expected_score_arithmetic)
+    assert c11h24_geometric.score(smiles1) == pytest.approx(expected_score_geometric)
+    assert c11h24_geometric.score(smiles2) == pytest.approx(expected_score_geometric)
+    assert c11h24_geometric.score(smiles3) == pytest.approx(expected_score_geometric)
 
 
 def test_smarts_function():

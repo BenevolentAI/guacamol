@@ -10,40 +10,49 @@ from guacamol.utils.descriptors import num_rotatable_bonds, num_aromatic_rings, 
     AtomCounter
 
 
-def isomers_c11h24() -> GoalDirectedBenchmark:
+def isomers_c11h24(mean_function: str) -> GoalDirectedBenchmark:
     """
     Benchmark to try and get all C11H24 molecules there are.
     There should be 159 if one ignores stereochemistry.
+
+    Args:
+        mean_function: 'arithmetic' or 'geometric'
     """
 
     specification = uniform_specification(159)
 
     return GoalDirectedBenchmark(name='C11H24',
-                                 objective=IsomerScoringFunction('C11H24'),
+                                 objective=IsomerScoringFunction('C11H24', mean_function=mean_function),
                                  contribution_specification=specification)
 
 
-def isomers_c7h8n2o2() -> GoalDirectedBenchmark:
+def isomers_c7h8n2o2(mean_function: str) -> GoalDirectedBenchmark:
     """
     Benchmark to try and get 100 isomers for C7H8N2O2.
+
+    Args:
+        mean_function: 'arithmetic' or 'geometric'
     """
 
     specification = uniform_specification(100)
 
     return GoalDirectedBenchmark(name='C7H8N2O2',
-                                 objective=IsomerScoringFunction('C7H8N2O2'),
+                                 objective=IsomerScoringFunction('C7H8N2O2', mean_function=mean_function),
                                  contribution_specification=specification)
 
 
-def isomers_c9h10n2o2pf2cl() -> GoalDirectedBenchmark:
+def isomers_c9h10n2o2pf2cl(mean_function: str) -> GoalDirectedBenchmark:
     """
     Benchmark to try and get 100 isomers for C9H10N2O2PF2Cl.
+
+    Args:
+        mean_function: 'arithmetic' or 'geometric'
     """
 
     specification = uniform_specification(100)
 
     return GoalDirectedBenchmark(name='C9H10N2O2PF2Cl',
-                                 objective=IsomerScoringFunction('C9H10N2O2PF2Cl'),
+                                 objective=IsomerScoringFunction('C9H10N2O2PF2Cl', mean_function=mean_function),
                                  contribution_specification=specification)
 
 

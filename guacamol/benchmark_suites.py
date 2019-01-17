@@ -38,9 +38,9 @@ def distribution_learning_benchmark_suite(chembl_file_path: str,
 def goal_directed_suite_v1() -> List[GoalDirectedBenchmark]:
     max_logP = 6.35584
     return [
-        isomers_c11h24(),
-        isomers_c7h8n2o2(),
-        isomers_c9h10n2o2pf2cl(),
+        isomers_c11h24(mean_function='arithmetic'),
+        isomers_c7h8n2o2(mean_function='arithmetic'),
+        isomers_c9h10n2o2pf2cl(mean_function='arithmetic'),
 
         hard_cobimetinib(max_logP=max_logP),
         hard_osimertinib(),

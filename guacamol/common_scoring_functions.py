@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, List
 
 from rdkit import Chem
 from rdkit.DataStructs.cDataStructs import TanimotoSimilarity
@@ -8,6 +8,7 @@ from guacamol.utils.fingerprints import get_fingerprint
 from guacamol.score_modifier import ScoreModifier, MinGaussianModifier, MaxGaussianModifier, GaussianModifier
 from guacamol.scoring_function import ScoringFunctionBasedOnRdkitMol, MoleculewiseScoringFunction
 from guacamol.utils.chemistry import smiles_to_rdkit_mol, parse_molecular_formula
+from guacamol.utils.math import arithmetic_mean, geometric_mean
 
 
 class RdkitScoringFunction(ScoringFunctionBasedOnRdkitMol):
@@ -97,29 +98,46 @@ class IsomerScoringFunction(MoleculewiseScoringFunction):
     - total number of atoms with a Gaussian modifier with mu=6, sigma=2
     """
 
-    def __init__(self, molecular_formula: str) -> None:
+    def __init__(self, molecular_formula: str, mean_function='geometric') -> None:
         """
         Args:
             molecular_formula: target molecular formula
+            mean_function: which function to use for averaging: 'arithmetic' or 'geometric'
         """
         super().__init__()
 
+        self.mean_function = self.determine_mean_function(mean_function)
+        self.scoring_functions = self.determine_scoring_functions(molecular_formula)
+
+    @staticmethod
+    def determine_mean_function(mean_function: str) -> Callable[[List[float]], float]:
+        if mean_function == 'arithmetic':
+            return arithmetic_mean
+        if mean_function == 'geometric':
+            return geometric_mean
+        raise ValueError(f'Invalid mean function: "{mean_function}"')
+
+    @staticmethod
+    def determine_scoring_functions(molecular_formula: str) -> List[RdkitScoringFunction]:
         element_occurrences = parse_molecular_formula(molecular_formula)
 
         total_number_atoms = sum(element_tuple[1] for element_tuple in element_occurrences)
 
         # scoring functions for each element
-        self.functions = [RdkitScoringFunction(descriptor=AtomCounter(element),
-                                               score_modifier=GaussianModifier(mu=n_atoms, sigma=1.0))
-                          for element, n_atoms in element_occurrences]
+        functions = [RdkitScoringFunction(descriptor=AtomCounter(element),
+                                          score_modifier=GaussianModifier(mu=n_atoms, sigma=1.0))
+                     for element, n_atoms in element_occurrences]
 
         # scoring functions for the total number of atoms
-        self.functions.append(RdkitScoringFunction(descriptor=num_atoms,
-                                                   score_modifier=GaussianModifier(mu=total_number_atoms, sigma=2.0)))
+        functions.append(RdkitScoringFunction(descriptor=num_atoms,
+                                              score_modifier=GaussianModifier(mu=total_number_atoms, sigma=2.0)))
+
+        return functions
 
     def raw_score(self, smiles: str) -> float:
         # return the average of all scoring functions
-        return sum(f.score(smiles) for f in self.functions) / len(self.functions)
+        scores = [f.score(smiles) for f in self.scoring_functions]
+        return self.mean_function(scores)
 
 
 class SMARTSScoringFunction(ScoringFunctionBasedOnRdkitMol):

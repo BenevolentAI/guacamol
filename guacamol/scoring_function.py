@@ -7,6 +7,7 @@ from rdkit import Chem
 
 from guacamol.utils.chemistry import smiles_to_rdkit_mol
 from guacamol.score_modifier import ScoreModifier, LinearModifier
+from guacamol.utils.math import geometric_mean
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
@@ -223,12 +224,7 @@ class GeometricMeanScoringFunction(MoleculewiseScoringFunction):
         if self.corrupt_score in partial_scores:
             return self.corrupt_score
 
-        return self.geometric_mean(partial_scores)
-
-    @staticmethod
-    def geometric_mean(scores: List[float]) -> float:
-        a = np.array(scores)
-        return a.prod() ** (1.0 / len(a))
+        return geometric_mean(partial_scores)
 
 
 class ScoringFunctionWrapper(ScoringFunction):
