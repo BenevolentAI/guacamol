@@ -34,6 +34,10 @@ def num_rotatable_bonds(mol: Mol) -> int:
     return Descriptors.NumRotatableBonds(mol)
 
 
+def num_rings(mol: Mol) -> int:
+    return rdMolDescriptors.CalcNumRings(mol)
+
+
 def num_aromatic_rings(mol: Mol) -> int:
     return rdMolDescriptors.CalcNumAromaticRings(mol)
 
