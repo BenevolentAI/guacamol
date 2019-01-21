@@ -137,6 +137,8 @@ class IsomerScoringFunction(MoleculewiseScoringFunction):
     def raw_score(self, smiles: str) -> float:
         # return the average of all scoring functions
         scores = [f.score(smiles) for f in self.scoring_functions]
+        if self.corrupt_score in scores:
+            return self.corrupt_score
         return self.mean_function(scores)
 
 

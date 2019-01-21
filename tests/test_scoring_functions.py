@@ -96,6 +96,12 @@ def test_isomer_scoring_function_penalizes_incorrect_number_atoms():
     assert c11h24_geometric.score(smiles3) == pytest.approx(expected_score_geometric)
 
 
+def test_isomer_scoring_function_invalid_molecule():
+    sf = IsomerScoringFunction('C60')
+
+    assert sf.score('CCCinvalid') == sf.corrupt_score
+
+
 def test_smarts_function():
     mol1 = 'COc1cc(N(C)CCN(C)C)c(NC(=O)C=C)cc1Nc2nccc(n2)c3cn(C)c4ccccc34'
     mol2 = 'Cc1c(C)c2OC(C)(COc3ccc(CC4SC(=O)NC4=O)cc3)CCc2c(C)c1O'

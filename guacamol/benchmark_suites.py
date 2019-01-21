@@ -109,8 +109,8 @@ def goal_directed_suite_v2() -> List[GoalDirectedBenchmark]:
         isomers_c9h10n2o2pf2cl(),
 
         # median molecules
-        median_tadalafil_sildenafil(),
         median_camphor_menthol(),
+        median_tadalafil_sildenafil(),
 
         # all other MPOs
         hard_osimertinib(),
