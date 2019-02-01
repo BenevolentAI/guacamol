@@ -1,6 +1,7 @@
 import argparse
 import gzip
 import hashlib
+import logging
 import os.path
 import pkgutil
 import platform
@@ -11,7 +12,11 @@ from joblib import Parallel, delayed
 
 from guacamol.utils.chemistry import canonicalize_list, filter_and_canonicalize, \
     initialise_neutralisation_reactions, split_charged_mol, get_fingerprints_from_smileslist
-from guacamol.utils.data import download_if_not_present, get_time_string
+from guacamol.utils.data import download_if_not_present
+from guacamol.utils.helpers import setup_default_logger
+
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 TRAIN_HASH = '05ad85d871958a05c02ab51a4fde8530'
 VALID_HASH = 'e53db4bff7dc4784123ae6df72e3b1f0'
@@ -20,19 +25,15 @@ TEST_HASH = '677b757ccec4809febd83850b43e1616'
 CHEMBL_URL = 'ftp://ftp.ebi.ac.uk/pub/databases/chembl/ChEMBLdb/releases/chembl_24_1/chembl_24_1_chemreps.txt.gz'
 CHEMBL_FILE_NAME = 'chembl_24_1_chemreps.txt.gz'
 
+# Threshold to remove molecules too similar to the holdout set
+TANIMOTO_CUTOFF = 0.323
+
 
 def get_argparser():
-    timestring = get_time_string()
     parser = argparse.ArgumentParser(description='Data Preparation for GuacaMol',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-o', '--destination', default='.', help='Download and Output location')
-    parser.add_argument('-i', '--input', default=None, help='Filename of input smiles file')
-    parser.add_argument('--output_prefix', default=timestring, help='Prefix of the output file')
     parser.add_argument('--n_jobs', default=8, type=int, help='Number of cores to use')
-    parser.add_argument('--tanimoto_cutoff', default=0.323, type=float,
-                        help='Remove molecules too similar to the holdout set')
-    parser.add_argument('--chembl', action='store_true',
-                        help='Specify to download and process molecules from chembl')
     return parser
 
 
@@ -138,15 +139,17 @@ def write_smiles(dataset: Iterable[str], filename: str):
     print(f'{filename} contains {n_lines} molecules')
 
 
-def compare_hash(output_file: str, correct_hash: str):
+def compare_hash(output_file: str, correct_hash: str) -> bool:
     """
     Computes the md5 hash of a SMILES file and check it against a given one
-    Raises an exception if hashes are different
+    Returns false if hashes are different
     """
     output_hash = hashlib.md5(open(output_file, 'rb').read()).hexdigest()
     if output_hash != correct_hash:
-        # print(f'{output_file} file has different hash {output_hash} than expected {correct_hash}!')
-        raise ValueError(f'{output_file} file has different hash {output_hash} than expected {correct_hash}!')
+        logger.error(f'{output_file} file has different hash, {output_hash}, than expected, {correct_hash}!')
+        return False
+
+    return True
 
 
 def main():
@@ -158,6 +161,8 @@ def main():
     2) canonicalize, neutralize, only permit smiles shorter than 100 chars
     3) shuffle, write files, check if they are consistently hashed.
     """
+    setup_default_logger()
+
     argparser = get_argparser()
     args = argparser.parse_args()
 
@@ -166,49 +171,26 @@ def main():
     neutralization_rxns = initialise_neutralisation_reactions()
     smiles_dict = AllowedSmilesCharDictionary()
 
-    tanimoto_cutoff = args.tanimoto_cutoff
+    print('Preprocessing ChEMBL molecules...')
 
-    # Either use chembl, or supplied SMILES file.
+    chembl_file = os.path.join(args.destination, CHEMBL_FILE_NAME)
 
-    print('Preprocessing molecules...')
+    data = pkgutil.get_data('guacamol.data', 'holdout_set_gcm_v1.smiles').decode('utf-8').splitlines()
 
-    if args.chembl:
+    holdout_mols = [i.split(' ')[0] for i in data]
+    holdout_set = set(canonicalize_list(holdout_mols, False))
+    holdout_fps = get_fingerprints_from_smileslist(holdout_set)
 
-        print('Using Chembl')
+    # Download Chembl23 if needed.
+    download_if_not_present(chembl_file,
+                            uri=CHEMBL_URL)
+    raw_smiles = get_raw_smiles(chembl_file, smiles_char_dict=smiles_dict, open_fn=gzip.open,
+                                extract_fn=extract_chembl)
 
-        chembl_file = os.path.join(args.destination, CHEMBL_FILE_NAME)
+    file_prefix = 'chembl24_canon'
 
-        data = pkgutil.get_data('guacamol.data', 'holdout_set_gcm_v1.smiles').decode('utf-8').splitlines()
-
-        holdout_mols = [i.split(' ')[0] for i in data]
-        holdout_set = set(canonicalize_list(holdout_mols, False))
-        holdout_fps = get_fingerprints_from_smileslist(holdout_set)
-
-        # Download Chembl23 if needed.
-        download_if_not_present(chembl_file,
-                                uri=CHEMBL_URL)
-        raw_smiles = get_raw_smiles(chembl_file, smiles_char_dict=smiles_dict, open_fn=gzip.open,
-                                    extract_fn=extract_chembl)
-
-        file_prefix = 'chembl24_canon'
-
-        print(f'Excluding molecules based on ECFP4 similarity of > {tanimoto_cutoff} to the holdout set')
-
-    else:
-        if args.input is None:
-            raise IOError(
-                'You need to specify an input smiles file with -i {file} or --input {file}. \n'
-                'Alternatively, provide the --chembl flag to download and process molecules from ChEMBL24 (recommended)')
-
-        raw_smiles = get_raw_smiles(args.input, smiles_char_dict=smiles_dict, open_fn=open,
-                                    extract_fn=extract_smilesfile)
-        tanimoto_cutoff = 100  # effectively no cutoff
-        holdout_set = set([])
-        holdout_fps = []
-        file_prefix = args.output_prefix
-
-    print()
-    print(f'Standardizing {len(raw_smiles)} molecules using {args.n_jobs} cores...')
+    print(f'and standardizing {len(raw_smiles)} molecules using {args.n_jobs} cores, '
+          f'and excluding molecules based on ECFP4 similarity of > {TANIMOTO_CUTOFF} to the holdout set.')
 
     # Process all the SMILES in parallel
     runner = Parallel(n_jobs=args.n_jobs, verbose=2)
@@ -217,7 +199,7 @@ def main():
                                                 holdout_set,
                                                 holdout_fps,
                                                 neutralization_rxns,
-                                                tanimoto_cutoff,
+                                                TANIMOTO_CUTOFF,
                                                 False)
                for smiles_str in raw_smiles)
 
@@ -248,15 +230,17 @@ def main():
     train_path = os.path.join(args.destination, f'{file_prefix}_train.smiles')
     write_smiles(train_set, train_path)
 
-    # for chembl, check the hashes
-    if args.chembl:
-        compare_hash(train_path, TRAIN_HASH)
-        compare_hash(dev_path, VALID_HASH)
-        compare_hash(test_path, TEST_HASH)
+    # check the hashes
+    valid_hashes = [
+        compare_hash(train_path, TRAIN_HASH),
+        compare_hash(dev_path, VALID_HASH),
+        compare_hash(test_path, TEST_HASH),
+    ]
 
-        print('The train/test/dev-file md5 hashes match the expected hashes.')
+    if not all(valid_hashes):
+        raise SystemExit(f'Invalid hashes for the dataset files')
 
-    print('You are ready to go.')
+    print('Dataset generation successful. You are ready to go.')
 
 
 if __name__ == '__main__':

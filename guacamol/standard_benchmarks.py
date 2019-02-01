@@ -293,7 +293,7 @@ def perindopril_rings() -> GoalDirectedBenchmark:
 
 def amlodipine_rings() -> GoalDirectedBenchmark:
     # amlodipine with 3 rings
-    amlodipine = TanimotoScoringFunction('Clc1ccccc1C2C(=C(/N/C(=C2/C(=O)OCC)COCCN)C)\C(=O)OC', fp_type='ECFP4')
+    amlodipine = TanimotoScoringFunction(r'Clc1ccccc1C2C(=C(/N/C(=C2/C(=O)OCC)COCCN)C)\C(=O)OC', fp_type='ECFP4')
     rings = RdkitScoringFunction(descriptor=num_rings,
                                  score_modifier=GaussianModifier(mu=3, sigma=0.5))
 
@@ -340,7 +340,7 @@ def zaleplon_with_other_formula() -> GoalDirectedBenchmark:
 
 
 def smarts_with_other_target(smarts: str, other_molecule: str) -> ScoringFunction:
-    smarts = SMARTSScoringFunction(target=smarts)
+    smarts_scoring_function = SMARTSScoringFunction(target=smarts)
     other_mol = Chem.MolFromSmiles(other_molecule)
     target_logp = logP(other_mol)
     target_tpsa = tpsa(other_mol)
@@ -353,7 +353,7 @@ def smarts_with_other_target(smarts: str, other_molecule: str) -> ScoringFunctio
     bz = RdkitScoringFunction(descriptor=bertz,
                               score_modifier=GaussianModifier(mu=target_bertz, sigma=30))
 
-    return GeometricMeanScoringFunction([smarts, lp, tp, bz])
+    return GeometricMeanScoringFunction([smarts_scoring_function, lp, tp, bz])
 
 
 def valsartan_smarts() -> GoalDirectedBenchmark:

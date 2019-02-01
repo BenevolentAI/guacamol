@@ -59,7 +59,7 @@ md5 `7d45bc95c33c10cb96ef5e78c38ac0b6` [all](https://ndownloader.figshare.com/fi
 
 To generate the training data yourself, run 
 ```
-python -m guacamol.data.get_data -o [output_directory] --chembl
+python -m guacamol.data.get_data -o [output_directory]
 ```
 which will download and process ChEMBL for you in your current folder.
 
@@ -67,6 +67,8 @@ This script will use the molecules from
 [`holdout_set_gcm_v1.smiles`](https://github.com/BenevolentAI/guacamol/blob/master/guacamol/data/holdout_set_gcm_v1.smiles)
 as a holdout set, and will exclude molecules very similar to these.
 
+Different versions of your Python packages may lead to differences in the generated dataset, which will cause the script to fail.
+See the section below ("Docker") to reproducibly generate the standardized dataset with the hashes given above.
 
 ### Docker
 
