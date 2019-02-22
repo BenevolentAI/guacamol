@@ -8,7 +8,7 @@ from guacamol.standard_benchmarks import hard_cobimetinib, similarity, logP_benc
     qed_benchmark, median_camphor_menthol, novelty_benchmark, isomers_c11h24, isomers_c7h8n2o2, isomers_c9h10n2o2pf2cl, \
     frechet_benchmark, tpsa_benchmark, hard_osimertinib, hard_fexofenadine, weird_physchem, start_pop_ranolazine, \
     kldiv_benchmark, perindopril_rings, amlodipine_rings, sitagliptin_replacement, zaleplon_with_other_formula, valsartan_smarts, \
-    median_tadalafil_sildenafil, scaffold_hop, decoration_hop, ranolazine_mpo, pioglitazone_mpo
+    median_tadalafil_sildenafil, decoration_hop, scaffold_hop, ranolazine_mpo, pioglitazone_mpo
 
 
 def goal_directed_benchmark_suite(version_name: str) -> List[GoalDirectedBenchmark]:
@@ -121,8 +121,8 @@ def goal_directed_suite_v2() -> List[GoalDirectedBenchmark]:
         sitagliptin_replacement(),
         zaleplon_with_other_formula(),
         valsartan_smarts(),
-        scaffold_hop(),
         decoration_hop(),
+        scaffold_hop(),
     ]
 
 

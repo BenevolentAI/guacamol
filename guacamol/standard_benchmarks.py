@@ -399,7 +399,7 @@ def pioglitazone_mpo() -> GoalDirectedBenchmark:
                                  contribution_specification=specification)
 
 
-def scaffold_hop() -> GoalDirectedBenchmark:
+def decoration_hop() -> GoalDirectedBenchmark:
     smiles = 'CCCOc1cc2ncnc(Nc3ccc4ncsc4c3)c2cc1S(=O)(=O)C(C)(C)C'
 
     pharmacophor_sim = TanimotoScoringFunction(smiles, fp_type='PHCO',
@@ -411,16 +411,16 @@ def scaffold_hop() -> GoalDirectedBenchmark:
     # keep scaffold
     scaffold = SMARTSScoringFunction('[#7]-c1n[c;h1]nc2[c;h1]c(-[#8])[c;h0][c;h1]c12', inverse=False)
 
-    scaffold_hop1_fn = ArithmeticMeanScoringFunction([pharmacophor_sim, deco1, deco2, scaffold])
+    deco_hop1_fn = ArithmeticMeanScoringFunction([pharmacophor_sim, deco1, deco2, scaffold])
 
     specification = uniform_specification(1, 10, 100)
 
-    return GoalDirectedBenchmark(name='Scaffold Hop',
-                                 objective=scaffold_hop1_fn,
+    return GoalDirectedBenchmark(name='Deco Hop',
+                                 objective=deco_hop1_fn,
                                  contribution_specification=specification)
 
 
-def decoration_hop() -> GoalDirectedBenchmark:
+def scaffold_hop() -> GoalDirectedBenchmark:
     """
     Keep the decoration, and similarity to start point, but change the scaffold.
     """
@@ -435,12 +435,12 @@ def decoration_hop() -> GoalDirectedBenchmark:
     # anti scaffold
     scaffold = SMARTSScoringFunction('[#7]-c1n[c;h1]nc2[c;h1]c(-[#8])[c;h0][c;h1]c12', inverse=True)
 
-    deco_hop_obj = ArithmeticMeanScoringFunction([pharmacophor_sim, deco, scaffold])
+    scaffold_hop_obj = ArithmeticMeanScoringFunction([pharmacophor_sim, deco, scaffold])
 
     specification = uniform_specification(1, 10, 100)
 
-    return GoalDirectedBenchmark(name='Deco Hop',
-                                 objective=deco_hop_obj,
+    return GoalDirectedBenchmark(name='Scaffold Hop',
+                                 objective=scaffold_hop_obj,
                                  contribution_specification=specification)
 
 
