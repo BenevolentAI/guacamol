@@ -2,8 +2,7 @@ from typing import List
 
 from sklearn.base import BaseEstimator
 
-from guacamol.distribution_learning_benchmark import DistributionLearningBenchmark, ValidityBenchmark, \
-    UniquenessBenchmark
+from guacamol.distribution_learning_benchmark import DistributionLearningBenchmark, ValidityBenchmark, UniquenessBenchmark
 from guacamol.goal_directed_benchmark import GoalDirectedBenchmark
 from guacamol.scoring_function import ArithmeticMeanScoringFunction
 from guacamol.standard_benchmarks import hard_cobimetinib, similarity, logP_benchmark, cns_mpo, \
@@ -46,7 +45,7 @@ class GoalDirectedBenchmarkSuite(object):
 
 
 # factory product
-class AbstractFactoryProduct(BaseEstimator):
+class AbstractFactoryProductGuacamol(BaseEstimator):
     def getHyperparameters(self):
         hyperparameters=self.get_params()
         return hyperparameters
@@ -70,7 +69,7 @@ class AbstractFactoryProduct(BaseEstimator):
 
 
 # factory product
-class GoalDirectedBenchmarkSuiteEntry(AbstractFactoryProduct):
+class GoalDirectedBenchmarkSuiteEntry(AbstractFactoryProductGuacamol):
     def __init__(self):
         GoalDirectedBenchmarkSuite().register[self.getName()] = self
 
@@ -337,15 +336,15 @@ def distribution_learning_benchmark_suite(chembl_file_path: str,
 
     # For distribution-learning, v1 and v2 are identical
     #register, of not already registered
-    if not (version_name in DistributionLearningBenchmarkSuiteEntry().getBenchmarkNames()):
+    if not (version_name in DistributionLearningBenchmarkSuite().getBenchmarkNames()):
         DistributionLearningV1(chembl_file_path=chembl_file_path, number_samples=number_samples)
         DistributionLearningV1(registerAsName='v2',chembl_file_path=chembl_file_path, number_samples=number_samples)
 
     #return
-    return DistributionLearningBenchmarkSuiteEntry().getBenchmark(version_name).getList()
+    return DistributionLearningBenchmarkSuite().getBenchmark(version_name).getList()
 
 # factory product
-class DistributionLearningBenchmarkSuiteEntry(AbstractFactoryProduct):
+class DistributionLearningBenchmarkSuiteEntry(AbstractFactoryProductGuacamol):
     def __init__(self):
         DistributionLearningBenchmarkSuite().register[self.getName()] = self
 
@@ -356,16 +355,20 @@ class DistributionLearningBenchmarkSuiteEntry(AbstractFactoryProduct):
 
 #define
 class DistributionLearningV1(DistributionLearningBenchmarkSuiteEntry):
-    def __init__(self, registerAsName=None, chembl_file_path: str = None, number_samples: int = 10000):
+    def __init__(self, registerAsName=None, chembl_file_path: str = None, number_samples: int = 10000, shortname="chembl"):
         self.registerAsName=registerAsName
         self.chembl_file_path=chembl_file_path
         self.number_samples=number_samples
+        self.shortname=shortname
         DistributionLearningBenchmarkSuiteEntry.__init__(self)
 
     def getName(self):
         _name='v1'
         if self.registerAsName is not None:
             _name=self.registerAsName
+        if self.shortname is not None:
+            _name+='-'
+            _name+=self.shortname
         return _name.lower()
 
     def getHyperparametersDescription(self):
@@ -391,5 +394,3 @@ class DistributionLearningV1(DistributionLearningBenchmarkSuiteEntry):
             frechet_benchmark(training_set_file=self.chembl_file_path, number_samples=self.number_samples)
         ]
     
-
-
