@@ -22,6 +22,10 @@ class ScoreModifier:
             float or np.array (depending on the type of x) after application of the distance function.
         """
 
+    def __hash__(self):
+        raise NotImplementedError
+        #return hash((self.__class__.__name__))
+
 
 class ChainedModifier(ScoreModifier):
     """
@@ -43,6 +47,12 @@ class ChainedModifier(ScoreModifier):
             score = modifier(score)
         return score
 
+    def __hash__(self):
+        hashList=[]
+        for modifier in self.modifiers:
+            mhash = modifier.__hash__()
+            hashList.append(mhash)
+        return hash(str(hashList))
 
 class LinearModifier(ScoreModifier):
     """
@@ -54,6 +64,9 @@ class LinearModifier(ScoreModifier):
 
     def __call__(self, x):
         return self.slope * x
+
+    def __hash__(self):
+        return hash((self.__class__.__name__,self.slope))
 
 
 class SquaredModifier(ScoreModifier):
@@ -69,6 +82,9 @@ class SquaredModifier(ScoreModifier):
     def __call__(self, x):
         return 1.0 - self.coefficient * np.square(self.target_value - x)
 
+    def __hash__(self):
+        return hash((self.__class__.__name__,self.target_value,self.coefficient))
+
 
 class AbsoluteScoreModifier(ScoreModifier):
     """
@@ -82,6 +98,8 @@ class AbsoluteScoreModifier(ScoreModifier):
     def __call__(self, x):
         return 1. - np.abs(self.target_value - x)
 
+    def __hash__(self):
+        return hash((self.__class__.__name__,self.target_value))
 
 class GaussianModifier(ScoreModifier):
     """
@@ -95,6 +113,8 @@ class GaussianModifier(ScoreModifier):
     def __call__(self, x):
         return np.exp(-0.5 * np.power((x - self.mu) / self.sigma, 2.))
 
+    def __hash__(self):
+        return hash((self.__class__.__name__,self.mu,self.sigma))
 
 class MinMaxGaussianModifier(ScoreModifier):
     """
@@ -116,6 +136,8 @@ class MinMaxGaussianModifier(ScoreModifier):
             mod_x = np.minimum(x, self.mu)
         return self._full_gaussian(mod_x)
 
+    def __hash__(self):
+        return hash((self.__class__.__name__,self.mu,self.sigma,self.minimize))
 
 MinGaussianModifier = partial(MinMaxGaussianModifier, minimize=True)
 MaxGaussianModifier = partial(MinMaxGaussianModifier, minimize=False)
@@ -160,6 +182,8 @@ class ClippedScoreModifier(ScoreModifier):
         y = self.slope * x + self.intercept
         return np.clip(y, self.low_score, self.high_score)
 
+    def __hash__(self):
+        return hash((self.__class__.__name__,self.upper_x,self.lower_x,self.high_score,self.low_score))
 
 class SmoothClippedScoreModifier(ScoreModifier):
     """
@@ -192,6 +216,8 @@ class SmoothClippedScoreModifier(ScoreModifier):
     def __call__(self, x):
         return self.low_score + self.L / (1 + np.exp(-self.k * (x - self.middle_x)))
 
+    def __hash__(self):
+        return hash((self.__class__.__name__,self.upper_x,self.lower_x,self.high_score,self.low_score))
 
 class ThresholdedLinearModifier(ScoreModifier):
     """
@@ -203,3 +229,6 @@ class ThresholdedLinearModifier(ScoreModifier):
 
     def __call__(self, x):
         return np.minimum(x, self.threshold) / self.threshold
+
+    def __hash__(self):
+        return hash((self.__class__.__name__,self.threshold))
