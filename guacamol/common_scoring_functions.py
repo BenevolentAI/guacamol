@@ -55,6 +55,8 @@ class TanimotoScoringFunction(ScoringFunctionBasedOnRdkitMol):
         fp = get_fingerprint(mol, self.fp_type)
         return TanimotoSimilarity(fp, self.ref_fp)
 
+    def __hash__(self):
+        return hash((self.__class__.__name__,self._score_modifier,self.target,self.fp_type))
 
 class CNS_MPO_ScoringFunction(ScoringFunctionBasedOnRdkitMol):
     """
@@ -84,6 +86,8 @@ class CNS_MPO_ScoringFunction(ScoringFunctionBasedOnRdkitMol):
 
         return 0.2 * (o1 + o2 + o3 + o4 + o5)
 
+    def __hash__(self):
+        return hash((self.__class__.__name__,self._score_modifier,self.logP_gauss.__hash__(),self.molW_gauss.__hash__(),self.tpsa_maxgauss.__hash__(),self.tpsa_mingauss.__hash__(),self.hbd_gauss.__hash__()))
 
 class IsomerScoringFunction(MoleculewiseScoringFunction):
     """
@@ -106,6 +110,7 @@ class IsomerScoringFunction(MoleculewiseScoringFunction):
         """
         super().__init__()
 
+        self.molecular_formula=molecular_formula
         self.mean_function = self.determine_mean_function(mean_function)
         self.scoring_functions = self.determine_scoring_functions(molecular_formula)
 
@@ -141,6 +146,8 @@ class IsomerScoringFunction(MoleculewiseScoringFunction):
             return self.corrupt_score
         return self.mean_function(scores)
 
+    def __hash__(self):
+        return hash((self.__class__.__name__,self._score_modifier,self.mean_function,self.molecular_formula))
 
 class SMARTSScoringFunction(ScoringFunctionBasedOnRdkitMol):
     """
@@ -177,3 +184,6 @@ class SMARTSScoringFunction(ScoringFunctionBasedOnRdkitMol):
                 return 1.0
             else:
                 return 0.0
+
+    def __hash__(self):
+        return hash((self.__class__.__name__,self._score_modifier,self.smarts,self.inverse))
