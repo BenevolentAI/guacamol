@@ -107,7 +107,15 @@ class MoleculewiseScoringFunction(ScoringFunction):
         raise NotImplementedError
 
     def __hash__(self):
-        return hash((self.__class__.__name__,self._score_modifier))
+        return hash(self.__repr__())
+
+    def __repr__(self):
+        return self.__class__.__name__+"("+self.__str__()+")"
+
+    def __str__(self):
+        reprList=[]
+        reprList.append(str(self._score_modifier.__repr__()))
+        return ",".join(reprList)
 
 class BatchScoringFunction(ScoringFunction):
     """
@@ -152,7 +160,15 @@ class BatchScoringFunction(ScoringFunction):
         raise NotImplementedError
 
     def __hash__(self):
-        return hash((self.__class__.__name__,self._score_modifier))
+        return hash(self.__repr__())
+
+    def __repr__(self):
+        return self.__class__.__name__+"("+self.__str__()+")"
+
+    def __str__(self):
+        reprList=[]
+        reprList.append(str(self._score_modifier.__repr__()))
+        return ",".join(reprList)
 
 class ScoringFunctionBasedOnRdkitMol(MoleculewiseScoringFunction):
     """
@@ -211,13 +227,18 @@ class ArithmeticMeanScoringFunction(BatchScoringFunction):
         return list(scores)
 
     def __hash__(self):
-        scorings=[]
-        weights=[]
-        for scoring, weight in zip(self.scoring_functions, self.weights):
-            scorings.append(scoring.__hash__())
-            weights.append(weight)
-        return hash((self.__class__.__name__,self._score_modifier, str(scorings), str(weights)))
+        return hash(self.__repr__())
 
+    def __repr__(self):
+        return self.__class__.__name__+"("+self.__str__()+")"
+
+    def __str__(self):
+        reprList=[]
+        reprList.append(str(self._score_modifier.__repr__()))
+        for scoring, weight in zip(self.scoring_functions, self.weights):
+            reprList.append(str(weight))
+            reprList.append(str(scoring.__repr__()))
+        return ",".join(reprList)
 
 class GeometricMeanScoringFunction(MoleculewiseScoringFunction):
     """
@@ -241,10 +262,17 @@ class GeometricMeanScoringFunction(MoleculewiseScoringFunction):
         return geometric_mean(partial_scores)
 
     def __hash__(self):
-        scorings=[]
+        return hash(self.__repr__())
+
+    def __repr__(self):
+        return self.__class__.__name__ + "(" + self.__str__() + ")"
+
+    def __str__(self):
+        reprList = []
+        reprList.append(str(self._score_modifier.__repr__()))
         for scoring in self.scoring_functions:
-            scorings.append(scoring.__hash__())
-        return hash((self.__class__.__name__,self._score_modifier, str(scorings)))
+            reprList.append(str(scoring.__repr__()))
+        return ",".join(reprList)
 
 
 class ScoringFunctionWrapper(ScoringFunction):
@@ -272,4 +300,12 @@ class ScoringFunctionWrapper(ScoringFunction):
         self.evaluations += n
 
     def __hash__(self):
-        return hash((self.scoring_function.__hash__()))
+        return hash(self.__repr__())
+
+    def __repr__(self):
+        return self.__class__.__name__ + "(" + self.__str__() + ")"
+
+    def __str__(self):
+        reprList = []
+        reprList.append(str(self.scoring_function.__repr__()))
+        return ",".join(reprList)

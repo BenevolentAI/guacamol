@@ -48,11 +48,17 @@ class ChainedModifier(ScoreModifier):
         return score
 
     def __hash__(self):
-        hashList=[]
+        return hash(self.__repr__())
+
+    def __repr__(self):
+        return self.__class__.__name__+"("+self.__str__()+")"
+
+    def __str__(self):
+        reprList=[]
         for modifier in self.modifiers:
-            mhash = modifier.__hash__()
-            hashList.append(mhash)
-        return hash(str(hashList))
+            mrepr = modifier.__repr__()
+            reprList.append(mrepr)
+        return ",".join(reprList)
 
 class LinearModifier(ScoreModifier):
     """
@@ -66,7 +72,13 @@ class LinearModifier(ScoreModifier):
         return self.slope * x
 
     def __hash__(self):
-        return hash((self.__class__.__name__,self.slope))
+        return hash(self.__repr__())
+
+    def __repr__(self):
+        return self.__class__.__name__+"("+self.__str__()+")"
+
+    def __str__(self):
+        return str(self.slope)
 
 
 class SquaredModifier(ScoreModifier):
@@ -83,7 +95,16 @@ class SquaredModifier(ScoreModifier):
         return 1.0 - self.coefficient * np.square(self.target_value - x)
 
     def __hash__(self):
-        return hash((self.__class__.__name__,self.target_value,self.coefficient))
+        return hash(self.__repr__())
+
+    def __repr__(self):
+        return self.__class__.__name__+"("+self.__str__()+")"
+
+    def __str__(self):
+        reprList=[]
+        reprList.append(str(self.target_value))
+        reprList.append(str(self.coefficient))
+        return ",".join(reprList)
 
 
 class AbsoluteScoreModifier(ScoreModifier):
@@ -99,7 +120,15 @@ class AbsoluteScoreModifier(ScoreModifier):
         return 1. - np.abs(self.target_value - x)
 
     def __hash__(self):
-        return hash((self.__class__.__name__,self.target_value))
+        return hash(self.__repr__())
+
+    def __repr__(self):
+        return self.__class__.__name__+"("+self.__str__()+")"
+
+    def __str__(self):
+        reprList=[]
+        reprList.append(str(self.target_value))
+        return ",".join(reprList)
 
 class GaussianModifier(ScoreModifier):
     """
@@ -114,7 +143,16 @@ class GaussianModifier(ScoreModifier):
         return np.exp(-0.5 * np.power((x - self.mu) / self.sigma, 2.))
 
     def __hash__(self):
-        return hash((self.__class__.__name__,self.mu,self.sigma))
+        return hash(self.__repr__())
+
+    def __repr__(self):
+        return self.__class__.__name__+"("+self.__str__()+")"
+
+    def __str__(self):
+        reprList=[]
+        reprList.append(str(self.mu))
+        reprList.append(str(self.sigma))
+        return ",".join(reprList)
 
 class MinMaxGaussianModifier(ScoreModifier):
     """
@@ -137,7 +175,17 @@ class MinMaxGaussianModifier(ScoreModifier):
         return self._full_gaussian(mod_x)
 
     def __hash__(self):
-        return hash((self.__class__.__name__,self.mu,self.sigma,self.minimize))
+        return hash(self.__repr__())
+
+    def __repr__(self):
+        return self.__class__.__name__+"("+self.__str__()+")"
+
+    def __str__(self):
+        reprList=[]
+        reprList.append(str(self.mu))
+        reprList.append(str(self.sigma))
+        reprList.append(str(self.minimize))
+        return ",".join(reprList)
 
 MinGaussianModifier = partial(MinMaxGaussianModifier, minimize=True)
 MaxGaussianModifier = partial(MinMaxGaussianModifier, minimize=False)
@@ -183,7 +231,18 @@ class ClippedScoreModifier(ScoreModifier):
         return np.clip(y, self.low_score, self.high_score)
 
     def __hash__(self):
-        return hash((self.__class__.__name__,self.upper_x,self.lower_x,self.high_score,self.low_score))
+        return hash(self.__repr__())
+
+    def __repr__(self):
+        return self.__class__.__name__+"("+self.__str__()+")"
+
+    def __str__(self):
+        reprList=[]
+        reprList.append(str(self.upper_x))
+        reprList.append(str(self.lower_x))
+        reprList.append(str(self.high_score))
+        reprList.append(str(self.low_score))
+        return ",".join(reprList)
 
 class SmoothClippedScoreModifier(ScoreModifier):
     """
@@ -217,7 +276,18 @@ class SmoothClippedScoreModifier(ScoreModifier):
         return self.low_score + self.L / (1 + np.exp(-self.k * (x - self.middle_x)))
 
     def __hash__(self):
-        return hash((self.__class__.__name__,self.upper_x,self.lower_x,self.high_score,self.low_score))
+        return hash(self.__repr__())
+
+    def __repr__(self):
+        return self.__class__.__name__+"("+self.__str__()+")"
+
+    def __str__(self):
+        reprList=[]
+        reprList.append(str(self.upper_x))
+        reprList.append(str(self.lower_x))
+        reprList.append(str(self.high_score))
+        reprList.append(str(self.low_score))
+        return ",".join(reprList)
 
 class ThresholdedLinearModifier(ScoreModifier):
     """
@@ -231,4 +301,12 @@ class ThresholdedLinearModifier(ScoreModifier):
         return np.minimum(x, self.threshold) / self.threshold
 
     def __hash__(self):
-        return hash((self.__class__.__name__,self.threshold))
+        return hash(self.__repr__())
+
+    def __repr__(self):
+        return self.__class__.__name__+"("+self.__str__()+")"
+
+    def __str__(self):
+        reprList=[]
+        reprList.append(str(self.threshold))
+        return ",".join(reprList)
