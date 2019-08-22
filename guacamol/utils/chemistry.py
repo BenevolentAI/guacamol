@@ -12,6 +12,8 @@ from scipy.stats import entropy, gaussian_kde
 
 from guacamol.utils.data import remove_duplicates
 
+from joblib import Parallel, delayed
+
 # Mute RDKit logger
 RDLogger.logger().setLevel(RDLogger.CRITICAL)
 
@@ -57,7 +59,8 @@ def canonicalize(smiles: str, include_stereocenters=True) -> Optional[str]:
         return None
 
 
-def canonicalize_list(smiles_list: Iterable[str], include_stereocenters=True) -> List[str]:
+def canonicalize_list(smiles_list: Iterable[str], include_stereocenters=True,
+                        parallelize_embarrassingly=True) -> List[str]:
     """
     Canonicalize a list of smiles. Filters out repetitions and removes corrupted molecules.
 
@@ -69,7 +72,11 @@ def canonicalize_list(smiles_list: Iterable[str], include_stereocenters=True) ->
         The canonicalized and filtered input smiles.
     """
 
-    canonicalized_smiles = [canonicalize(smiles, include_stereocenters) for smiles in smiles_list]
+    if parallelize_embarrassingly:
+        canonicalized_smiles = Parallel(n_jobs=-1)(delayed(canonicalize)(
+                                    smiles, include_stereocenters) for smiles in smiles_list)
+    else:
+        canonicalized_smiles = [canonicalize(smiles, include_stereocenters) for smiles in smiles_list]
 
     # Remove None elements
     canonicalized_smiles = [s for s in canonicalized_smiles if s is not None]
