@@ -3,7 +3,8 @@ from guacamol.goal_directed_score_contributions import uniform_specification
 from guacamol.similaritymetric_scoring_function import SimilarityMetricScoringFunction
 
 
-def similarity_to_transition_state(method, ref_state, num_conformations, options):
+def similarity_to_transition_state(method, ref_state, num_conformations,
+                                   num_protonation_states, options):
     """
     Computes similarity score using a metric from the similaritymetrics repo.
     :param method:              string, name of the method to compute the metric
@@ -14,7 +15,8 @@ def similarity_to_transition_state(method, ref_state, num_conformations, options
     """
     benchmark_name = "{} transition state similarity".format(ref_state.split(".")[0])
     scoring_function = SimilarityMetricScoringFunction(method, options, ref_state,
-                                                       num_conformations)
+                                                       num_conformations,
+                                                       num_protonation_states)
     specification = uniform_specification(1, 10, 100)
     return GoalDirectedBenchmark(name=benchmark_name,
                                  objective=scoring_function,

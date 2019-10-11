@@ -47,7 +47,7 @@ def distribution_learning_benchmark_suite(chembl_file_path: str,
 def transition_state_suite():
     return [similarity_to_transition_state('ShapeIt',
                                            'ts_bovine_b3lyp_charges.pdb',
-                                           100,
+                                           100, 4,
                                            {
                                                "num_workers": 1,
                                                "return_aligned_mols": False,
@@ -57,7 +57,7 @@ def transition_state_suite():
                                            ),
             similarity_to_transition_state('ShapeIt',
                                            'ts_human_b3lyp_charges.pdb',
-                                           100,
+                                           100, 4,
                                            {
                                                "num_workers": 1,
                                                "return_aligned_mols": False,
