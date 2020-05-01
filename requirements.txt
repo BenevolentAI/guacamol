@@ -4,7 +4,7 @@ joblib>=0.12.5
 numpy>=1.15.2
 scipy>=1.1.0
 tqdm>=4.26.0
-FCD==1.0
+FCD==1.1
 
 # rdkit is also required and is best installed with conda:
 #     conda install rdkit -c rdkit

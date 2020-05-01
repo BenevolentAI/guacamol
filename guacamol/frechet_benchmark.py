@@ -90,7 +90,7 @@ class FrechetBenchmark(DistributionLearningBenchmark):
         return fcd.load_ref_model(model_path)
 
     def _calculate_distribution_statistics(self, model, molecules: List[str]):
-        sample_std = fcd.canoncial_smiles(molecules)
+        sample_std = fcd.canonical_smiles(molecules)
         gen_mol_act = fcd.get_predictions(model, sample_std)
 
         mu = np.mean(gen_mol_act, axis=0)
