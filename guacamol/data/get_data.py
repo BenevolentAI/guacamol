@@ -238,7 +238,7 @@ def main():
     ]
 
     if not all(valid_hashes):
-        raise SystemExit(f'Invalid hashes for the dataset files')
+        raise SystemExit('Invalid hashes for the dataset files')
 
     print('Dataset generation successful. You are ready to go.')
 

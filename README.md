@@ -74,11 +74,11 @@ See the section below ("Docker") to reproducibly generate the standardized datas
 
 To be sure that you have the right dependencies you can build a Docker image, run from the top-level directory:
 ```
-docker build -t guacamol-deps dockers/
+docker build -t guacamol-deps -f dockers/Dockerfile .
 ```
 Then you can run:
 ```
-docker run --rm -it  -v `pwd`:/guacamol -w /guacamol guacamol-deps python -m guacamol.data.get_data -o guacamol/data --chembl
+docker run --rm -it  -v `pwd`:/guacamol -w /guacamol guacamol-deps python -m guacamol.data.get_data -o guacamol/data
 ```
 
 
