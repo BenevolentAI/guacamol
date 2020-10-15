@@ -65,6 +65,8 @@ class ScoringFunction:
         """
         raise NotImplementedError
 
+    def __hash__(self):
+        raise NotImplementedError
 
 class MoleculewiseScoringFunction(ScoringFunction):
     """
@@ -104,6 +106,16 @@ class MoleculewiseScoringFunction(ScoringFunction):
         """
         raise NotImplementedError
 
+    def __hash__(self):
+        return hash(self.__repr__())
+
+    def __repr__(self):
+        return self.__class__.__name__+"("+self.__str__()+")"
+
+    def __str__(self):
+        reprList=[]
+        reprList.append(str(self._score_modifier.__repr__()))
+        return ",".join(reprList)
 
 class BatchScoringFunction(ScoringFunction):
     """
@@ -147,6 +159,16 @@ class BatchScoringFunction(ScoringFunction):
         """
         raise NotImplementedError
 
+    def __hash__(self):
+        return hash(self.__repr__())
+
+    def __repr__(self):
+        return self.__class__.__name__+"("+self.__str__()+")"
+
+    def __str__(self):
+        reprList=[]
+        reprList.append(str(self._score_modifier.__repr__()))
+        return ",".join(reprList)
 
 class ScoringFunctionBasedOnRdkitMol(MoleculewiseScoringFunction):
     """
@@ -204,6 +226,19 @@ class ArithmeticMeanScoringFunction(BatchScoringFunction):
 
         return list(scores)
 
+    def __hash__(self):
+        return hash(self.__repr__())
+
+    def __repr__(self):
+        return self.__class__.__name__+"("+self.__str__()+")"
+
+    def __str__(self):
+        reprList=[]
+        reprList.append(str(self._score_modifier.__repr__()))
+        for scoring, weight in zip(self.scoring_functions, self.weights):
+            reprList.append(str(weight))
+            reprList.append(str(scoring.__repr__()))
+        return ",".join(reprList)
 
 class GeometricMeanScoringFunction(MoleculewiseScoringFunction):
     """
@@ -225,6 +260,19 @@ class GeometricMeanScoringFunction(MoleculewiseScoringFunction):
             return self.corrupt_score
 
         return geometric_mean(partial_scores)
+
+    def __hash__(self):
+        return hash(self.__repr__())
+
+    def __repr__(self):
+        return self.__class__.__name__ + "(" + self.__str__() + ")"
+
+    def __str__(self):
+        reprList = []
+        reprList.append(str(self._score_modifier.__repr__()))
+        for scoring in self.scoring_functions:
+            reprList.append(str(scoring.__repr__()))
+        return ",".join(reprList)
 
 
 class ScoringFunctionWrapper(ScoringFunction):
@@ -250,3 +298,14 @@ class ScoringFunctionWrapper(ScoringFunction):
         # However, adding a threading.Lock member variable makes the class non-pickle-able, which prevents any multithreading.
         # Therefore, in the current implementation there cannot be a guarantee that self.evaluations will be calculated correctly.
         self.evaluations += n
+
+    def __hash__(self):
+        return hash(self.__repr__())
+
+    def __repr__(self):
+        return self.__class__.__name__ + "(" + self.__str__() + ")"
+
+    def __str__(self):
+        reprList = []
+        reprList.append(str(self.scoring_function.__repr__()))
+        return ",".join(reprList)

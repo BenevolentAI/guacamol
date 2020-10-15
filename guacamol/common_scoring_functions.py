@@ -55,6 +55,18 @@ class TanimotoScoringFunction(ScoringFunctionBasedOnRdkitMol):
         fp = get_fingerprint(mol, self.fp_type)
         return TanimotoSimilarity(fp, self.ref_fp)
 
+    def __hash__(self):
+        return hash(self.__repr__())
+
+    def __repr__(self):
+        return self.__class__.__name__+"("+self.__str__()+")"
+
+    def __str__(self):
+        reprList=[]
+        reprList.append(str(self._score_modifier.__repr__()))
+        reprList.append(str(self.target))
+        reprList.append(str(self.fp_type))
+        return ",".join(reprList)
 
 class CNS_MPO_ScoringFunction(ScoringFunctionBasedOnRdkitMol):
     """
@@ -84,6 +96,21 @@ class CNS_MPO_ScoringFunction(ScoringFunctionBasedOnRdkitMol):
 
         return 0.2 * (o1 + o2 + o3 + o4 + o5)
 
+    def __hash__(self):
+        return hash(self.__repr__())
+
+    def __repr__(self):
+        return self.__class__.__name__+"("+self.__str__()+")"
+
+    def __str__(self):
+        reprList=[]
+        reprList.append(str(self._score_modifier.__repr__()))
+        reprList.append(self.logP_gauss.__repr__())
+        reprList.append(self.molW_gauss.__repr__())
+        reprList.append(self.tpsa_maxgauss.__repr__())
+        reprList.append(self.tpsa_mingauss.__repr__())
+        reprList.append(self.hbd_gauss.__repr__())
+        return ",".join(reprList)
 
 class IsomerScoringFunction(MoleculewiseScoringFunction):
     """
@@ -106,6 +133,7 @@ class IsomerScoringFunction(MoleculewiseScoringFunction):
         """
         super().__init__()
 
+        self.molecular_formula=molecular_formula
         self.mean_function = self.determine_mean_function(mean_function)
         self.scoring_functions = self.determine_scoring_functions(molecular_formula)
 
@@ -141,6 +169,18 @@ class IsomerScoringFunction(MoleculewiseScoringFunction):
             return self.corrupt_score
         return self.mean_function(scores)
 
+    def __hash__(self):
+        return hash(self.__repr__())
+
+    def __repr__(self):
+        return self.__class__.__name__+"("+self.__str__()+")"
+
+    def __str__(self):
+        reprList=[]
+        reprList.append(str(self._score_modifier.__repr__()))
+        reprList.append(self.mean_function)
+        reprList.append(self.molecular_formula)
+        return ",".join(reprList)
 
 class SMARTSScoringFunction(ScoringFunctionBasedOnRdkitMol):
     """
@@ -177,3 +217,16 @@ class SMARTSScoringFunction(ScoringFunctionBasedOnRdkitMol):
                 return 1.0
             else:
                 return 0.0
+
+    def __hash__(self):
+        return hash(self.__repr__())
+
+    def __repr__(self):
+        return self.__class__.__name__+"("+self.__str__()+")"
+
+    def __str__(self):
+        reprList=[]
+        reprList.append(str(self._score_modifier.__repr__()))
+        reprList.append(self.smarts)
+        reprList.append(str(self.inverse))
+        return ",".join(reprList)
