@@ -34,9 +34,6 @@ setup(name='guacamol',
           'tensorflow==1.8',
           'Keras==2.1.0',
           'h5py==2.10.0',
-          'flake8>=3.5.0',
-          'mypy>=0.630',
-          'pytest>=3.8.2'
       ],
       python_requires='>=3.6',
       extras_require={
