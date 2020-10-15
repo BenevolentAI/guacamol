@@ -1,6 +1,7 @@
 import io
 import re
 from os import path
+
 from setuptools import setup
 
 # Get the version from guacamol/__init__.py
@@ -31,7 +32,11 @@ setup(name='guacamol',
           'FCD==1.1',
           # FCD doesn't pin dependencies, so we have to
           'tensorflow==1.8',
-          'Keras==2.1.0'
+          'Keras==2.1.0',
+          'h5py==2.10.0',
+          'flake8>=3.5.0',
+          'mypy>=0.630',
+          'pytest>=3.8.2'
       ],
       python_requires='>=3.6',
       extras_require={
