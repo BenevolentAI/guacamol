@@ -24,4 +24,5 @@ RUN conda install -y -q -c rdkit rdkit=2018.09.1.0
 
 # python deps
 RUN pip install joblib \
-                tqdm
+                tqdm \
+                scipy
