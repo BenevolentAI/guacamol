@@ -28,7 +28,10 @@ setup(name='guacamol',
           'numpy>=1.15.2',
           'scipy>=1.1.0',
           'tqdm>=4.26.0',
-          'FCD==1.1'
+          'FCD==1.1',
+            # FCD doesn't pin dependencies, so we have to
+          'tensorflow==1.8',
+          'Keras==2.1.0'
       ],
       python_requires='>=3.6',
       extras_require={
