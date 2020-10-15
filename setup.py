@@ -31,7 +31,7 @@ setup(name='guacamol',
           'tqdm>=4.26.0',
           'FCD==1.1',
           # FCD doesn't pin dependencies, so we have to
-          'tensorflow==1.8',
+          'tensorflow==1.15.4',
           'Keras==2.1.0',
           'h5py==2.10.0',
       ],
