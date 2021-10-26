@@ -34,7 +34,7 @@ setup(
         "FCD==1.1",
         # FCD doesn't pin the tensorflow and Keras dependencies, so we have to do the honours
         "tensorflow",
-        "Kera",
+        "Keras",
         "h5py",
     ],
     python_requires=">=3.6",
