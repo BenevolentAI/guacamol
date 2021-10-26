@@ -6,9 +6,9 @@ scipy>=1.1.0
 tqdm>=4.26.0
 FCD==1.1
 # FCD doesn't pin the tensorflow and Keras dependencies, so we have to do the honours
-tensorflow==1.15.4
-Keras==2.1.0
-h5py==2.10.0
+tensorflow
+Keras
+h5py
 # rdkit is also required and is best installed with conda:
 #     conda install rdkit -c rdkit
 
