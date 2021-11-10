@@ -47,7 +47,7 @@ For the actual benchmarks, call `assess_goal_directed_generation`
 Example implementations for baseline methods are available from https://github.com/BenevolentAI/guacamol_baselines.
 
 In [guacamol_baselines](https://github.com/BenevolentAI/guacamol_baselines), 
-we provide a DockerFile with an example environment for developing generative models and running guacamol.
+we provide a `Dockerfile` with an example environment for developing generative models and running guacamol.
 
 ## Data
 
