@@ -1,7 +1,7 @@
 import os
 import sys
 import time
-from typing import List, Any, Optional
+from typing import List, Any, Optional, Set
 from urllib.request import urlretrieve
 
 import numpy as np
@@ -20,7 +20,7 @@ def remove_duplicates(list_with_duplicates):
         A list with no duplicates.
     """
 
-    unique_set = set()
+    unique_set: Set[Any] = set()
     unique_list = []
     for element in list_with_duplicates:
         if element not in unique_set:
