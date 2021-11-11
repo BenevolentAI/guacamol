@@ -79,6 +79,8 @@ class FrechetBenchmark(DistributionLearningBenchmark):
         3. load the model from the temporary file
         """
         model_bytes = pkgutil.get_data('fcd', self.chemnet_model_filename)
+        assert model_bytes is not None
+
         tmpdir = tempfile.gettempdir()
         model_path = os.path.join(tmpdir, self.chemnet_model_filename)
 

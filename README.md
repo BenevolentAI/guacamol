@@ -16,7 +16,16 @@ The easiest way to install `guacamol` is with `pip`:
 pip install guacamol
 ```
 
-`guacamol` requires the [RDKit library](http://rdkit.org/) (version `2018.09.1.0` or newer).
+Dependencies:
+- `guacamol` requires the [RDKit library](http://rdkit.org/) (version `2018.09.1.0` or newer).
+- We also depend on the [FCD](https://github.com/bioinf-jku/FCD) library (version `1.1`) for the calculation of the Fréchet ChemNet Distance.
+
+#### Unit testing suite
+
+You can test your installation of the guacamol benchmarking library by running the unit tests from this directory:
+```bash
+pytest .
+```
 
 
 ## Benchmarking models
@@ -37,6 +46,8 @@ For the actual benchmarks, call `assess_goal_directed_generation`
 
 Example implementations for baseline methods are available from https://github.com/BenevolentAI/guacamol_baselines.
 
+In [guacamol_baselines](https://github.com/BenevolentAI/guacamol_baselines), 
+we provide a `Dockerfile` with an example environment for developing generative models and running guacamol.
 
 ## Data
 
@@ -81,6 +92,10 @@ Then you can run:
 docker run --rm -it  -v `pwd`:/guacamol -w /guacamol guacamol-deps python -m guacamol.data.get_data -o guacamol/data
 ```
 
+## Change log
+- 1 May 2020: update version of FCD dependency
+- 15 Oct 2020: pin dependencies since FCD does not
+- 10 Nov 2021: relax pinned versions of keras, tensorflow & h5py dependencies
 
 ## Leaderboard
 

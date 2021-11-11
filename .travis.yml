@@ -1,11 +1,10 @@
 language: python
 
 python:
-  # Actually not needed since rdkit installation with conda overwrites it
   - "3.6"
 
 before_install:
-  # download and install miniconda
+  # download and install miniconda (for convenience)
   - wget http://repo.continuum.io/miniconda/Miniconda3-4.1.11-Linux-x86_64.sh -O miniconda.sh;
   - bash miniconda.sh -b -p $HOME/conda
   - export PATH="$HOME/conda/bin:$PATH"
@@ -16,9 +15,8 @@ before_install:
   - source activate test_env
 
 install:
-  # install the most recent rdkit package from the RDKit anaconda channel.
-  - conda install -q -c rdkit rdkit
-  - pip install -r requirements.txt
+  - pip install -r dockers/requirements.txt  # install testing requirements
+  - pip install .                            # install guacamol benchmark
 
 script:
   # Style guide enforcement

@@ -4,11 +4,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
         cmake ca-certificates \
         libglib2.0-0 libxext6 libsm6 libxrender1 \
-        wget \
-        curl \
-        bash \
-        bzip2 \
-        && \
+        wget curl bash bzip2 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -19,10 +15,15 @@ RUN curl -LO --silent https://repo.continuum.io/miniconda/Miniconda3-4.5.11-Linu
 
 ENV PATH=/miniconda/bin:${PATH}
 
-# RDKit
-RUN conda install -y -q -c rdkit rdkit=2018.09.1.0
+# Add the source code
+RUN mkdir -p /app
+ADD . /app
 
-# python deps
-RUN pip install joblib \
-                tqdm \
-                scipy
+# python deps for running tests
+RUN pip install --upgrade pip && pip install --no-cache-dir -r /app/dockers/requirements.txt
+
+# install guacamol
+RUN pip install --upgrade pip && pip install --no-cache-dir /app/
+
+# Launch inside the folder
+WORKDIR /app/

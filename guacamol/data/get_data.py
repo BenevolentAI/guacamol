@@ -175,7 +175,7 @@ def main():
 
     chembl_file = os.path.join(args.destination, CHEMBL_FILE_NAME)
 
-    data = pkgutil.get_data('guacamol.data', 'holdout_set_gcm_v1.smiles').decode('utf-8').splitlines()
+    data = pkgutil.get_data('guacamol.data', 'holdout_set_gcm_v1.smiles').decode('utf-8').splitlines()  # type: ignore
 
     holdout_mols = [i.split(' ')[0] for i in data]
     holdout_set = set(canonicalize_list(holdout_mols, False))

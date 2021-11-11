@@ -210,7 +210,7 @@ def filter_and_canonicalize(smiles: str, holdout_set, holdout_fps, neutralizatio
     return []
 
 
-def calculate_internal_pairwise_similarities(smiles_list: Collection[str]) -> np.array:
+def calculate_internal_pairwise_similarities(smiles_list: Collection[str]) -> np.ndarray:
     """
     Computes the pairwise similarities of the provided list of smiles against itself.
 
@@ -235,12 +235,12 @@ def calculate_internal_pairwise_similarities(smiles_list: Collection[str]) -> np
     return similarities
 
 
-def calculate_pairwise_similarities(smiles_list1: List[str], smiles_list2: List[str]) -> np.array:
+def calculate_pairwise_similarities(smiles_list1: List[str], smiles_list2: List[str]) -> np.ndarray:
     """
     Computes the pairwise ECFP4 tanimoto similarity of the two smiles containers.
 
     Returns:
-        Pairwise similarity matrix as np.array
+        Pairwise similarity matrix as np.ndarray
     """
     if len(smiles_list1) > 10000 or len(smiles_list2) > 10000:
         logger.warning(f'Calculating similarity between large sets of '
@@ -259,9 +259,7 @@ def calculate_pairwise_similarities(smiles_list1: List[str], smiles_list2: List[
 
         similarities.append(sims)
 
-    similarities = np.array(similarities)
-
-    return similarities
+    return np.array(similarities)
 
 
 def get_fingerprints_from_smileslist(smiles_list):
@@ -321,7 +319,7 @@ def highest_tanimoto_precalc_fps(mol, fps):
     return sims.max()
 
 
-def continuous_kldiv(X_baseline: np.array, X_sampled: np.array) -> float:
+def continuous_kldiv(X_baseline: np.ndarray, X_sampled: np.ndarray) -> float:
     kde_P = gaussian_kde(X_baseline)
     kde_Q = gaussian_kde(X_sampled)
     x_eval = np.linspace(np.hstack([X_baseline, X_sampled]).min(), np.hstack([X_baseline, X_sampled]).max(), num=1000)
@@ -331,7 +329,7 @@ def continuous_kldiv(X_baseline: np.array, X_sampled: np.array) -> float:
     return entropy(P, Q)
 
 
-def discrete_kldiv(X_baseline: np.array, X_sampled: np.array) -> float:
+def discrete_kldiv(X_baseline: np.ndarray, X_sampled: np.ndarray) -> float:
     P, bins = histogram(X_baseline, bins=10, density=True)
     P += 1e-10
     Q, _ = histogram(X_sampled, bins=bins, density=True)
@@ -340,7 +338,7 @@ def discrete_kldiv(X_baseline: np.array, X_sampled: np.array) -> float:
     return entropy(P, Q)
 
 
-def calculate_pc_descriptors(smiles: Iterable[str], pc_descriptors: List[str]) -> np.array:
+def calculate_pc_descriptors(smiles: Iterable[str], pc_descriptors: List[str]) -> np.ndarray:
     output = []
 
     for i in smiles:
@@ -351,7 +349,7 @@ def calculate_pc_descriptors(smiles: Iterable[str], pc_descriptors: List[str]) -
     return np.array(output)
 
 
-def _calculate_pc_descriptors(smiles: str, pc_descriptors: List[str]) -> np.array:
+def _calculate_pc_descriptors(smiles: str, pc_descriptors: List[str]) -> Optional[np.ndarray]:
     calc = MoleculeDescriptors.MolecularDescriptorCalculator(pc_descriptors)
 
     mol = Chem.MolFromSmiles(smiles)
