@@ -96,6 +96,7 @@ docker run --rm -it  -v `pwd`:/guacamol -w /guacamol guacamol-deps python -m gua
 - 1 May 2020: update version of FCD dependency
 - 15 Oct 2020: pin dependencies since FCD does not
 - 10 Nov 2021: relax pinned versions of keras, tensorflow & h5py dependencies
+- 20 Dec 2021: expose forbidden symbols argument for custom smiles dataset filtering
 
 ## Leaderboard
 
