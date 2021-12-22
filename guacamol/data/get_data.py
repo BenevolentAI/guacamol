@@ -2,13 +2,12 @@ import argparse
 import gzip
 import hashlib
 import logging
+import numpy as np
 import os.path
 import pkgutil
 import platform
-from typing import List, Iterable
-
-import numpy as np
 from joblib import Parallel, delayed
+from typing import List, Iterable, Optional, Set
 
 from guacamol.utils.chemistry import canonicalize_list, filter_and_canonicalize, \
     initialise_neutralisation_reactions, split_charged_mol, get_fingerprints_from_smileslist
@@ -62,10 +61,12 @@ class AllowedSmilesCharDictionary(object):
     A fixed dictionary for druglike SMILES.
     """
 
-    def __init__(self) -> None:
-        self.forbidden_symbols = {'Ag', 'Al', 'Am', 'Ar', 'At', 'Au', 'D', 'E', 'Fe', 'G', 'K', 'L', 'M', 'Ra', 'Re',
-                                  'Rf', 'Rg', 'Rh', 'Ru', 'T', 'U', 'V', 'W', 'Xe',
-                                  'Y', 'Zr', 'a', 'd', 'f', 'g', 'h', 'k', 'm', 'si', 't', 'te', 'u', 'v', 'y'}
+    def __init__(self, forbidden_symbols: Optional[Set[str]] = None) -> None:
+        if forbidden_symbols is None:
+            forbidden_symbols = {'Ag', 'Al', 'Am', 'Ar', 'At', 'Au', 'D', 'E', 'Fe', 'G', 'K', 'L', 'M', 'Ra', 'Re',
+                                 'Rf', 'Rg', 'Rh', 'Ru', 'T', 'U', 'V', 'W', 'Xe',
+                                 'Y', 'Zr', 'a', 'd', 'f', 'g', 'h', 'k', 'm', 'si', 't', 'te', 'u', 'v', 'y'}
+        self.forbidden_symbols = forbidden_symbols
 
     def allowed(self, smiles: str) -> bool:
         """
@@ -122,7 +123,7 @@ def get_raw_smiles(file_name, smiles_char_dict, open_fn, extract_fn) -> List[str
 
                     data.append(smiles)
 
-        print(f'Processed {line_count} lines.')
+        print(f'Processed {len(data)} molecules from {line_count} lines in the input file.')
 
     return data
 
@@ -153,7 +154,7 @@ def compare_hash(output_file: str, correct_hash: str) -> bool:
 
 
 def main():
-    """ Get Chembl-23.
+    """ Get Chembl-24.
 
     Preprocessing steps:
 
@@ -175,13 +176,16 @@ def main():
 
     chembl_file = os.path.join(args.destination, CHEMBL_FILE_NAME)
 
-    data = pkgutil.get_data('guacamol.data', 'holdout_set_gcm_v1.smiles').decode('utf-8').splitlines()  # type: ignore
+    # read holdout set and decode it
+    raw_data = pkgutil.get_data('guacamol.data', 'holdout_set_gcm_v1.smiles')
+    assert raw_data is not None
+    data = raw_data.decode('utf-8').splitlines()
 
     holdout_mols = [i.split(' ')[0] for i in data]
     holdout_set = set(canonicalize_list(holdout_mols, False))
     holdout_fps = get_fingerprints_from_smileslist(holdout_set)
 
-    # Download Chembl23 if needed.
+    # Download Chembl24 if needed.
     download_if_not_present(chembl_file,
                             uri=CHEMBL_URL)
     raw_smiles = get_raw_smiles(chembl_file, smiles_char_dict=smiles_dict, open_fn=gzip.open,
