@@ -1,12 +1,13 @@
+import inspect
 import logging
 import time
-from typing import Any, Dict, List, Tuple, Optional
 
 import numpy as np
+from typing import Any, Dict, List, Tuple, Optional
 
+from guacamol.goal_directed_generator import GoalDirectedGenerator
 from guacamol.goal_directed_score_contributions import ScoreContributionSpecification, compute_global_score
 from guacamol.scoring_function import ScoringFunction, ScoringFunctionWrapper
-from guacamol.goal_directed_generator import GoalDirectedGenerator
 from guacamol.utils.chemistry import canonicalize_list, remove_duplicates, calculate_internal_pairwise_similarities
 
 logger = logging.getLogger(__name__)
@@ -67,10 +68,18 @@ class GoalDirectedBenchmark:
         """
         number_molecules_to_generate = max(self.contribution_specification.top_counts)
         start_time = time.time()
-        molecules = model.generate_optimized_molecules(scoring_function=self.wrapped_objective,
-                                                       number_molecules=number_molecules_to_generate,
-                                                       starting_population=self.starting_population
-                                                       )
+
+        if 'job_name' in inspect.getfullargspec(model.generate_optimized_molecules).args:
+            # version 0.6.0 and above
+            molecules = model.generate_optimized_molecules(scoring_function=self.wrapped_objective,
+                                                           number_molecules=number_molecules_to_generate,
+                                                           starting_population=self.starting_population,
+                                                           job_name=self.name)
+        else:
+            # backwards compatability
+            molecules = model.generate_optimized_molecules(scoring_function=self.wrapped_objective,
+                                                           number_molecules=number_molecules_to_generate,
+                                                           starting_population=self.starting_population)
         end_time = time.time()
 
         canonicalized_molecules = canonicalize_list(molecules, include_stereocenters=False)
