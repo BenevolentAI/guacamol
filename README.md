@@ -100,4 +100,4 @@ docker run --rm -it  -v `pwd`:/guacamol -w /guacamol guacamol-deps python -m gua
 
 ## Leaderboard
 
-See [https://benevolent.ai/guacamol](https://benevolent.ai/guacamol).
+See [https://www.benevolent.com/guacamol](https://www.benevolent.com/guacamol).
