@@ -24,7 +24,7 @@ Dependencies:
 
 You can test your installation of the guacamol benchmarking library by running the unit tests from this directory:
 ```bash
-pytest .
+python -m pytest .
 ```
 
 
