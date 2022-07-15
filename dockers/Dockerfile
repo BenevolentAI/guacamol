@@ -1,5 +1,12 @@
 FROM ubuntu:18.04
 
+# metainformation
+LABEL org.opencontainers.image.version = "0.5.5"
+LABEL org.opencontainers.image.authors = "BenevolentAI"
+LABEL org.opencontainers.image.source = "https://github.com/BenevolentAI/guacamol"
+LABEL org.opencontainers.image.licenses = "MIT"
+LABEL org.opencontainers.image.base.name="docker.io/library/ubuntu:18.04"
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
         cmake ca-certificates \
