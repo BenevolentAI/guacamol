@@ -9,7 +9,7 @@ from guacamol.standard_benchmarks import hard_cobimetinib, similarity, logP_benc
     frechet_benchmark, tpsa_benchmark, hard_osimertinib, hard_fexofenadine, weird_physchem, start_pop_ranolazine, \
     kldiv_benchmark, perindopril_rings, amlodipine_rings, sitagliptin_replacement, zaleplon_with_other_formula, valsartan_smarts, \
     median_tadalafil_sildenafil, decoration_hop, scaffold_hop, ranolazine_mpo, pioglitazone_mpo
-
+from guacamol.similaritymetric_benchmarks import similarity_to_transition_state
 
 def goal_directed_benchmark_suite(version_name: str) -> List[GoalDirectedBenchmark]:
     if version_name == 'v1':
@@ -18,6 +18,8 @@ def goal_directed_benchmark_suite(version_name: str) -> List[GoalDirectedBenchma
         return goal_directed_suite_v2()
     if version_name == 'trivial':
         return goal_directed_suite_trivial()
+    if version_name == 'transition states':
+        return transition_state_suite()
 
     raise Exception(f'Goal-directed benchmark suite "{version_name}" does not exist.')
 
@@ -42,6 +44,28 @@ def distribution_learning_benchmark_suite(chembl_file_path: str,
 
     raise Exception(f'Distribution-learning benchmark suite "{version_name}" does not exist.')
 
+def transition_state_suite():
+    return [similarity_to_transition_state('ShapeIt',
+                                           'ts_bovine_b3lyp_charges.pdb',
+                                           100, 4,
+                                           {
+                                               "num_workers": 1,
+                                               "return_aligned_mols": False,
+                                               "electrostatic": True,
+                                               "explicit_hydrogens": False
+                                           }
+                                           ),
+            similarity_to_transition_state('ShapeIt',
+                                           'ts_human_b3lyp_charges.pdb',
+                                           100, 4,
+                                           {
+                                               "num_workers": 1,
+                                               "return_aligned_mols": False,
+                                               "electrostatic": True,
+                                               "explicit_hydrogens": False
+                                           }
+                                           )
+            ]
 
 def goal_directed_suite_v1() -> List[GoalDirectedBenchmark]:
     max_logP = 6.35584
