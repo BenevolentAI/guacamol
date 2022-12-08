@@ -10,8 +10,12 @@ class GoalDirectedGenerator(metaclass=ABCMeta):
     """
 
     @abstractmethod
-    def generate_optimized_molecules(self, scoring_function: ScoringFunction, number_molecules: int,
-                                     starting_population: Optional[List[str]] = None) -> List[str]:
+    def generate_optimized_molecules(self,
+                                     scoring_function: ScoringFunction,
+                                     number_molecules: int,
+                                     starting_population: Optional[List[str]] = None,
+                                     job_name: Optional[str] = None,
+                                     ) -> List[str]:
         """
         Given an objective function, generate molecules that score as high as possible.
 
@@ -19,6 +23,7 @@ class GoalDirectedGenerator(metaclass=ABCMeta):
             scoring_function: scoring function
             number_molecules: number of molecules to generate
             starting_population: molecules to start the optimization from (optional)
+            job_name: name of optimization job (optionally used by generators to save intermediate details/epochs/gens)
 
         Returns:
             A list of SMILES strings for the generated molecules.

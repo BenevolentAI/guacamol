@@ -26,7 +26,8 @@ class MockGenerator(GoalDirectedGenerator):
         self.molecules = molecules
 
     def generate_optimized_molecules(self, scoring_function: ScoringFunction, number_molecules: int,
-                                     starting_population: Optional[List[str]] = None) -> List[str]:
+                                     starting_population: Optional[List[str]] = None, job_name: Optional[str] = None,
+                                     ) -> List[str]:
         assert number_molecules == len(self.molecules)
         return self.molecules
 
