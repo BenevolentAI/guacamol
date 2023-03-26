@@ -1,0 +1,64 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "guacamol"
+dynamic = ["version"]
+description = "Guacamol: benchmarks for de novo molecular design"
+readme = "README.md"
+python_requires='>=3.6'
+authors = [
+    {name = "BenevolentAI", email = "guacamol@benevolent.ai"}
+]
+license = {file = "LICENSE"}
+dependencies = [
+    "FCD>=1.1",
+    "tqdm>=4.26.0",
+    "scipy>=1.1.0",
+    "numpy>=1.15.2",
+    "joblib>=0.12.5",
+    "rdkit-pypi>=2021.9.2.1"
+]
+
+[project.urls]
+homepage = "https://github.com/BenevolentAI/guacamol"
+repository = "https://github.com/BenevolentAI/guacamol"
+
+[tool.setuptools.packages]
+include = [
+    "guacamol",
+    "guacamol.data",
+    "guacamol.utils"
+]
+
+[tool.mypy]
+check_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = "mypy-fcd.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "mypy-joblib.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "mypy-numpy.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "mypy-pytest.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "mypy-rdkit.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "mypy-scipy.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "mypy-tqdm.*"
+ignore_missing_imports = true
