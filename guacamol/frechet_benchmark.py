@@ -25,7 +25,7 @@ class FrechetBenchmark(DistributionLearningBenchmark):
     """
 
     def __init__(self, training_set: List[str],
-                 chemnet_model_filename='ChemNet_v0.13_pretrained.h5',
+                 chemnet_model_filename='ChemNet_v0.13_pretrained.pt',
                  sample_size=10000) -> None:
         """
         Args:
